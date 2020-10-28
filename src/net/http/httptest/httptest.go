@@ -38,6 +38,16 @@ import (
 //
 // To generate a client HTTP request instead of a server request, see
 // the NewRequest function in the net/http package.
+
+/*//
+生成的是服务器请求不是客户端请求
+NewRequest返回一个新的传入服务器请求，适合//传递给http.Handler用于测试。
+target 是 url参数
+不支持TLS
+请求协议永远是1.1
+参数中method 如果为空，则为get
+遇到error 会 panic
+*/
 func NewRequest(method, target string, body io.Reader) *http.Request {
 	if method == "" {
 		method = "GET"

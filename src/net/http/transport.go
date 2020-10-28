@@ -39,6 +39,10 @@ import (
 // and caches them for reuse by subsequent calls. It uses HTTP proxies
 // as directed by the $HTTP_PROXY and $NO_PROXY (or $http_proxy and
 // $no_proxy) environment variables.
+
+/*//DefaultTransport是Transport的默认实现，//由DefaultClient使用。
+它根据需要建立网络连接//并缓存它们以供后续调用重用。
+它可能会使用HTTP PROXY//，如果有环境变量 $HTTP_PROXY和$NO_PROXY（或$HTTP_PROXY和//$NO_PROXY*/
 var DefaultTransport RoundTripper = &Transport{
 	Proxy: ProxyFromEnvironment,
 	DialContext: (&net.Dialer{
@@ -55,6 +59,8 @@ var DefaultTransport RoundTripper = &Transport{
 
 // DefaultMaxIdleConnsPerHost is the default value of Transport's
 // MaxIdleConnsPerHost.
+
+/*一个 host 默认最大两个空闲链接*/
 const DefaultMaxIdleConnsPerHost = 2
 
 // Transport is an implementation of RoundTripper that supports HTTP,
@@ -92,6 +98,26 @@ const DefaultMaxIdleConnsPerHost = 2
 // entry. If the idempotency key value is a zero-length slice, the
 // request is treated as idempotent but the header is not sent on the
 // wire.
+
+/*
+Transport 实现了RoundTripper 接口，支持 http，https，和http代理
+此结构的方法必须是并发安全的,推荐单例使用
+为了避免打开过多的链接, 可以通过下面三个地方来控制
+CloseIdleConnections 方法
+MaxIdleConnsPerHost 字段
+DisableKeepAlives 字段
+
+cookie 和 重定向功能在client 文件里，这里没有
+
+要在传输上显式启用HTTP/2，请使用golang.org/x/net/http2//并调用ConfigureTransport。有关HTTP/2的更多信息，请参阅包文档。
+
+//状态代码在1xx范围内的响应要么被自动处理（100 expect continue），要么被忽略。
+一个例外是HTTP状态码101（交换协议），它被认为是一个终端状态，会被返回（理解是用户的Handle函数是客户捕获的，比如升级到websocket）。
+要查看//忽略的1xx响应，请使用httptrace跟踪包的//ClientTrace.Got1xxResponse.
+
+//传输仅在遇到网络错误时重试请求，前提是请求是幂等的，并且没有正文或有其请求.GetBody定义。
+如果HTTP请求有HTTP方法GET、HEAD、OPTIONS或TRACE，或者它们的头映射包含“幂等键”或“X-Idempotency-Key”//entry，则认为HTTP请求是幂等的。如果幂等键值是长度为零的片，则//请求将被视为幂等，但不会在//线路上发送标头。
+*/
 type Transport struct {
 	idleMu       sync.Mutex
 	closeIdle    bool                                // user has requested to close all idle conns

@@ -112,6 +112,7 @@ func NewServer(handler http.Handler) *Server {
 // StartTLS.
 //
 // The caller should call Close when finished, to shut it down.
+/*//NewUnstartedServer返回一个新服务器，但不启动它。////更改配置后，调用方应调用Start或//StartTLS。////调用程序在完成时应该调用Close来关闭它。*/
 func NewUnstartedServer(handler http.Handler) *Server {
 	return &Server{
 		Listener: newLocalListener(),
