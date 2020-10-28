@@ -126,6 +126,7 @@ func driverArgsConnLocked(ci driver.Conn, ds *driverStmt, args []interface{}) ([
 	// to the column converter.
 	nvc, ok := si.(driver.NamedValueChecker)
 	if !ok {
+		/*这个地方代码可读性很不好,应该对ok匿名接收   ok --> _ */
 		nvc, ok = ci.(driver.NamedValueChecker)
 	}
 	cci, ok := si.(driver.ColumnConverter)
