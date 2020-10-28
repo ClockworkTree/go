@@ -8,11 +8,11 @@ package net
 
 import (
 	"bytes"
-	"internal/testenv"
 	"io/ioutil"
 	"os"
 	"reflect"
 	"runtime"
+	"std/internal/testenv"
 	"syscall"
 	"testing"
 	"time"

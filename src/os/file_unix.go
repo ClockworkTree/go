@@ -7,10 +7,10 @@
 package os
 
 import (
-	"internal/poll"
-	"internal/syscall/unix"
 	"io"
 	"runtime"
+	"std/internal/poll"
+	"std/internal/syscall/unix"
 	"syscall"
 )
 

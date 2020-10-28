@@ -5,8 +5,8 @@
 package sync_test
 
 import (
-	"internal/race"
 	"runtime"
+	"std/internal/race"
 	. "sync"
 	"sync/atomic"
 	"testing"

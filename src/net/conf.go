@@ -7,9 +7,9 @@
 package net
 
 import (
-	"internal/bytealg"
 	"os"
 	"runtime"
+	"std/internal/bytealg"
 	"sync"
 	"syscall"
 )

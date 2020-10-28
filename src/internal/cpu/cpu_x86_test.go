@@ -7,9 +7,9 @@
 package cpu_test
 
 import (
-	. "internal/cpu"
 	"os"
 	"runtime"
+	. "std/internal/cpu"
 	"testing"
 )
 

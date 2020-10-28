@@ -9,11 +9,11 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"internal/testenv"
 	"os/exec"
 	"reflect"
 	"regexp"
 	"sort"
+	"std/internal/testenv"
 	"strings"
 	"testing"
 )

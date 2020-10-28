@@ -1,10 +1,10 @@
 package gzip
 
 import (
-	"internal/testenv"
 	"os"
 	"path/filepath"
 	"runtime"
+	"std/internal/testenv"
 	"strings"
 	"testing"
 )

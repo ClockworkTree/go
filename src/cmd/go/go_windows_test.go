@@ -5,11 +5,11 @@
 package main
 
 import (
-	"internal/testenv"
 	"io/ioutil"
 	"os"
 	"os/exec"
 	"path/filepath"
+	"std/internal/testenv"
 	"strings"
 	"testing"
 

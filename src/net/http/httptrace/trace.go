@@ -9,10 +9,10 @@ package httptrace
 import (
 	"context"
 	"crypto/tls"
-	"internal/nettrace"
 	"net"
 	"net/textproto"
 	"reflect"
+	"std/internal/nettrace"
 	"time"
 )
 

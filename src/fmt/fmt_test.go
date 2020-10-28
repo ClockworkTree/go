@@ -7,11 +7,11 @@ package fmt_test
 import (
 	"bytes"
 	. "fmt"
-	"internal/race"
 	"io"
 	"math"
 	"reflect"
 	"runtime"
+	"std/internal/race"
 	"strings"
 	"testing"
 	"time"

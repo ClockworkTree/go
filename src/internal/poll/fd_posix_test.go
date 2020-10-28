@@ -7,8 +7,8 @@
 package poll_test
 
 import (
-	. "internal/poll"
 	"io"
+	. "std/internal/poll"
 	"testing"
 )
 

@@ -5,9 +5,9 @@
 package net
 
 import (
-	"internal/poll"
 	"io"
 	"os"
+	"std/internal/poll"
 )
 
 // sendFile copies the contents of r to c using the sendfile

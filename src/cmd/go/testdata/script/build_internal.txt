@@ -28,7 +28,7 @@ package w
 -- testinternal3/t.go --
 package t
 
-import _ "internal/does-not-exist"
+import _ "std/internal/does-not-exist"
 -- testinternal4/src/p/p.go --
 package p
 

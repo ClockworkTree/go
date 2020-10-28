@@ -7,7 +7,7 @@
 package net
 
 import (
-	"net/internal/socktest"
+	"std/net/internal/socktest"
 	"strings"
 	"syscall"
 )

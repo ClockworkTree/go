@@ -31,12 +31,12 @@ package syntax
 import (
 	"flag"
 	"fmt"
-	"internal/testenv"
 	"io/ioutil"
 	"os"
 	"path/filepath"
 	"regexp"
 	"sort"
+	"std/internal/testenv"
 	"strings"
 	"testing"
 )

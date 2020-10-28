@@ -32,9 +32,9 @@ import (
 	"go/parser"
 	"go/scanner"
 	"go/token"
-	"internal/testenv"
 	"io/ioutil"
 	"regexp"
+	"std/internal/testenv"
 	"strings"
 	"testing"
 

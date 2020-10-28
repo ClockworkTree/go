@@ -9,7 +9,7 @@
 package crc32
 
 import (
-	"internal/cpu"
+	"std/internal/cpu"
 	"unsafe"
 )
 

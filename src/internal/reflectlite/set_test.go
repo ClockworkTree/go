@@ -8,8 +8,8 @@ import (
 	"bytes"
 	"go/ast"
 	"go/token"
-	. "internal/reflectlite"
 	"io"
+	. "std/internal/reflectlite"
 	"testing"
 )
 

@@ -6,8 +6,8 @@ package os
 
 import (
 	"errors"
-	"internal/syscall/windows"
 	"runtime"
+	"std/internal/syscall/windows"
 	"sync/atomic"
 	"syscall"
 	"time"

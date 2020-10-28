@@ -7,13 +7,13 @@ package filepath_test
 import (
 	"flag"
 	"fmt"
-	"internal/testenv"
 	"io/ioutil"
 	"os"
 	"os/exec"
 	"path/filepath"
 	"reflect"
 	"runtime/debug"
+	"std/internal/testenv"
 	"strings"
 	"testing"
 )

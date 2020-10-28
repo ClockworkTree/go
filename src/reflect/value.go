@@ -5,9 +5,9 @@
 package reflect
 
 import (
-	"internal/unsafeheader"
 	"math"
 	"runtime"
+	"std/internal/unsafeheader"
 	"unsafe"
 )
 

@@ -9,9 +9,9 @@
 package runtime
 
 import (
-	"internal/cpu"
 	"runtime/internal/atomic"
 	"runtime/internal/sys"
+	"std/internal/cpu"
 	"unsafe"
 )
 

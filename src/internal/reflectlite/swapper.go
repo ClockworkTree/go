@@ -5,7 +5,7 @@
 package reflectlite
 
 import (
-	"internal/unsafeheader"
+	"std/internal/unsafeheader"
 	"unsafe"
 )
 

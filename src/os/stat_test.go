@@ -5,11 +5,11 @@
 package os_test
 
 import (
-	"internal/testenv"
 	"io/ioutil"
 	"os"
 	"path/filepath"
 	"runtime"
+	"std/internal/testenv"
 	"testing"
 )
 

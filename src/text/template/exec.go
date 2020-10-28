@@ -6,10 +6,10 @@ package template
 
 import (
 	"fmt"
-	"internal/fmtsort"
 	"io"
 	"reflect"
 	"runtime"
+	"std/internal/fmtsort"
 	"strings"
 	"text/template/parse"
 )

@@ -8,9 +8,9 @@ import (
 	"bytes"
 	"debug/elf"
 	"fmt"
-	"internal/xcoff"
 	"io"
 	"os"
+	"std/internal/xcoff"
 	"strconv"
 	"strings"
 )

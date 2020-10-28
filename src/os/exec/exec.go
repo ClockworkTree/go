@@ -24,7 +24,7 @@ import (
 	"bytes"
 	"context"
 	"errors"
-	"internal/syscall/execenv"
+	"std/internal/syscall/execenv"
 	"io"
 	"os"
 	"path/filepath"

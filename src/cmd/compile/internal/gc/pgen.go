@@ -12,9 +12,9 @@ import (
 	"cmd/internal/objabi"
 	"cmd/internal/src"
 	"cmd/internal/sys"
-	"internal/race"
 	"math/rand"
 	"sort"
+	"std/internal/race"
 	"sync"
 	"time"
 )

@@ -8,11 +8,11 @@ package net
 
 import (
 	"fmt"
-	"internal/testenv"
 	"io"
 	"os"
 	"reflect"
 	"runtime"
+	"std/internal/testenv"
 	"sync"
 	"testing"
 	"time"

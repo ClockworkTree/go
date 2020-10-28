@@ -5,7 +5,7 @@
 package windows
 
 import (
-	"internal/unsafeheader"
+	"std/internal/unsafeheader"
 	"sync"
 	"syscall"
 	"unicode/utf16"

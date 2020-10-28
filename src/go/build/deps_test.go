@@ -10,12 +10,12 @@ package build
 import (
 	"bytes"
 	"fmt"
-	"internal/testenv"
 	"io/ioutil"
 	"os"
 	"path/filepath"
 	"runtime"
 	"sort"
+	"std/internal/testenv"
 	"strconv"
 	"strings"
 	"testing"

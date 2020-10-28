@@ -9,14 +9,14 @@ import (
 	"debug/macho"
 	"debug/pe"
 	"fmt"
-	"internal/testenv"
-	"internal/xcoff"
 	"io"
 	"io/ioutil"
 	"os"
 	"os/exec"
 	"path/filepath"
 	"runtime"
+	"std/internal/testenv"
+	"std/internal/xcoff"
 	"testing"
 )
 

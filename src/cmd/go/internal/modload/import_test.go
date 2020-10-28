@@ -5,8 +5,8 @@
 package modload
 
 import (
-	"internal/testenv"
 	"regexp"
+	"std/internal/testenv"
 	"strings"
 	"testing"
 )

@@ -31,8 +31,8 @@ package work
 
 import (
 	"fmt"
-	"internal/lazyregexp"
 	"regexp"
+	"std/internal/lazyregexp"
 	"strings"
 
 	"cmd/go/internal/cfg"

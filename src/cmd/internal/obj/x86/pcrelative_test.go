@@ -7,11 +7,11 @@ package x86_test
 import (
 	"bytes"
 	"fmt"
-	"internal/testenv"
 	"io/ioutil"
 	"os"
 	"os/exec"
 	"path/filepath"
+	"std/internal/testenv"
 	"testing"
 )
 

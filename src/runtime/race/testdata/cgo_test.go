@@ -5,9 +5,9 @@
 package race_test
 
 import (
-	"internal/testenv"
 	"os"
 	"os/exec"
+	"std/internal/testenv"
 	"testing"
 )
 

@@ -7,7 +7,7 @@
 package execenv
 
 import (
-	"internal/syscall/windows"
+	"std/internal/syscall/windows"
 	"syscall"
 	"unicode/utf16"
 	"unsafe"

@@ -7,10 +7,10 @@
 package net
 
 import (
-	"internal/syscall/windows/registry"
 	"os"
 	"reflect"
 	"runtime"
+	"std/internal/syscall/windows/registry"
 	"strconv"
 	"testing"
 )

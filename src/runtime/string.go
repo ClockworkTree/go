@@ -5,8 +5,8 @@
 package runtime
 
 import (
-	"internal/bytealg"
 	"runtime/internal/sys"
+	"std/internal/bytealg"
 	"unsafe"
 )
 

@@ -5,11 +5,11 @@
 package cpu_test
 
 import (
-	. "internal/cpu"
-	"internal/testenv"
 	"os"
 	"os/exec"
 	"runtime"
+	. "std/internal/cpu"
+	"std/internal/testenv"
 	"strings"
 	"testing"
 )

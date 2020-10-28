@@ -6,12 +6,12 @@ package ld
 
 import (
 	"fmt"
-	"internal/testenv"
 	"io/ioutil"
 	"os"
 	"os/exec"
 	"path/filepath"
 	"runtime"
+	"std/internal/testenv"
 	"strings"
 	"testing"
 )

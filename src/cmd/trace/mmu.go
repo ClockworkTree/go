@@ -28,10 +28,10 @@ package main
 import (
 	"encoding/json"
 	"fmt"
-	"internal/trace"
 	"log"
 	"math"
 	"net/http"
+	"std/internal/trace"
 	"strconv"
 	"strings"
 	"sync"

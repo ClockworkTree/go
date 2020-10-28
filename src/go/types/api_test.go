@@ -11,9 +11,9 @@ import (
 	"go/importer"
 	"go/parser"
 	"go/token"
-	"internal/testenv"
 	"reflect"
 	"regexp"
+	"std/internal/testenv"
 	"strings"
 	"testing"
 

@@ -8,9 +8,9 @@ package net
 
 import (
 	"errors"
-	"internal/bytealg"
 	"io"
 	"os"
+	"std/internal/bytealg"
 )
 
 // nssConf represents the state of the machine's /etc/nsswitch.conf file.

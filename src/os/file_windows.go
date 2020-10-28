@@ -6,9 +6,9 @@ package os
 
 import (
 	"errors"
-	"internal/poll"
-	"internal/syscall/windows"
 	"runtime"
+	"std/internal/poll"
+	"std/internal/syscall/windows"
 	"syscall"
 	"unicode/utf16"
 	"unsafe"

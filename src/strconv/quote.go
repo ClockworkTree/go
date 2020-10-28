@@ -7,7 +7,7 @@
 package strconv
 
 import (
-	"internal/bytealg"
+	"std/internal/bytealg"
 	"unicode/utf8"
 )
 

@@ -10,9 +10,9 @@ package net
 
 import (
 	"context"
-	"internal/poll"
 	"io"
 	"os"
+	"std/internal/poll"
 	"sync"
 	"syscall"
 	"time"

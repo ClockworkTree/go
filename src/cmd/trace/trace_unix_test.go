@@ -8,10 +8,10 @@ package main
 
 import (
 	"bytes"
-	traceparser "internal/trace"
 	"io/ioutil"
 	"runtime"
 	"runtime/trace"
+	traceparser "std/internal/trace"
 	"sync"
 	"syscall"
 	"testing"

@@ -5,8 +5,8 @@
 package net
 
 import (
-	"internal/testenv"
 	"runtime"
+	"std/internal/testenv"
 	"testing"
 )
 

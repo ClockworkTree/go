@@ -5,10 +5,10 @@
 package ld
 
 import (
-	"internal/testenv"
 	"io/ioutil"
 	"os"
 	"runtime"
+	"std/internal/testenv"
 	"strings"
 	"testing"
 )

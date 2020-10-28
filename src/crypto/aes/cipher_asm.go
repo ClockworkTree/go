@@ -9,7 +9,7 @@ package aes
 import (
 	"crypto/cipher"
 	"crypto/internal/subtle"
-	"internal/cpu"
+	"std/internal/cpu"
 )
 
 // defined in asm_*.s

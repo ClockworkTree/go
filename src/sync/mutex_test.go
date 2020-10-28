@@ -8,10 +8,10 @@ package sync_test
 
 import (
 	"fmt"
-	"internal/testenv"
 	"os"
 	"os/exec"
 	"runtime"
+	"std/internal/testenv"
 	"strings"
 	. "sync"
 	"testing"

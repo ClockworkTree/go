@@ -8,11 +8,11 @@ package ld
 
 import (
 	"debug/elf"
-	"internal/testenv"
 	"io/ioutil"
 	"os"
 	"os/exec"
 	"path/filepath"
+	"std/internal/testenv"
 	"testing"
 )
 

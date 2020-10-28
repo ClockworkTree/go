@@ -7,11 +7,11 @@
 package syscall_test
 
 import (
-	"internal/testenv"
 	"io"
 	"os"
 	"os/exec"
 	"os/signal"
+	"std/internal/testenv"
 	"syscall"
 	"testing"
 	"unsafe"

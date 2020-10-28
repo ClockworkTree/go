@@ -14,7 +14,7 @@ package main
 
 import (
 	"fmt"
-	"internal/poll"
+	"std/internal/poll"
 	"io/ioutil"
 	"os"
 	"os/exec"

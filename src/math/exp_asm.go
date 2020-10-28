@@ -6,6 +6,6 @@
 
 package math
 
-import "internal/cpu"
+import "std/internal/cpu"
 
 var useFMA = cpu.X86.HasAVX && cpu.X86.HasFMA

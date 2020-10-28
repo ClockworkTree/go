@@ -9,11 +9,11 @@ package net
 import (
 	"errors"
 	"fmt"
-	"internal/testenv"
 	"io"
-	"net/internal/socktest"
 	"os"
 	"runtime"
+	"std/internal/testenv"
+	"std/net/internal/socktest"
 	"testing"
 	"time"
 )

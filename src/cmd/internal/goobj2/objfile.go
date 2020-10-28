@@ -12,8 +12,8 @@ import (
 	"encoding/binary"
 	"errors"
 	"fmt"
-	"internal/unsafeheader"
 	"io"
+	"std/internal/unsafeheader"
 	"unsafe"
 )
 

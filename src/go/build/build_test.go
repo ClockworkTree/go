@@ -6,13 +6,13 @@ package build
 
 import (
 	"flag"
-	"internal/testenv"
 	"io"
 	"io/ioutil"
 	"os"
 	"path/filepath"
 	"reflect"
 	"runtime"
+	"std/internal/testenv"
 	"strings"
 	"testing"
 )

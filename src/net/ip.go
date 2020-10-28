@@ -12,7 +12,7 @@
 
 package net
 
-import "internal/bytealg"
+import "std/internal/bytealg"
 
 // IP address lengths (bytes).
 const (

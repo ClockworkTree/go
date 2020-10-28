@@ -6,12 +6,12 @@ package importer
 
 import (
 	"go/token"
-	"internal/testenv"
 	"io"
 	"io/ioutil"
 	"os"
 	"os/exec"
 	"runtime"
+	"std/internal/testenv"
 	"strings"
 	"testing"
 )

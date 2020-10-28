@@ -7,8 +7,8 @@
 package os
 
 import (
-	"internal/syscall/execenv"
 	"runtime"
+	"std/internal/syscall/execenv"
 	"syscall"
 )
 

@@ -9,12 +9,12 @@ package renameio
 import (
 	"encoding/binary"
 	"errors"
-	"internal/testenv"
 	"io/ioutil"
 	"math/rand"
 	"os"
 	"path/filepath"
 	"runtime"
+	"std/internal/testenv"
 	"strings"
 	"sync"
 	"sync/atomic"

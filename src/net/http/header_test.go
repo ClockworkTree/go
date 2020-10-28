@@ -6,9 +6,9 @@ package http
 
 import (
 	"bytes"
-	"internal/race"
 	"reflect"
 	"runtime"
+	"std/internal/race"
 	"testing"
 	"time"
 )

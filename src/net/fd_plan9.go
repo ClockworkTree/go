@@ -5,9 +5,9 @@
 package net
 
 import (
-	"internal/poll"
 	"io"
 	"os"
+	"std/internal/poll"
 	"syscall"
 	"time"
 )

@@ -6,8 +6,8 @@ package user
 
 import (
 	"fmt"
-	"internal/syscall/windows"
-	"internal/syscall/windows/registry"
+	"std/internal/syscall/windows"
+	"std/internal/syscall/windows/registry"
 	"syscall"
 	"unsafe"
 )

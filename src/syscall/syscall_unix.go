@@ -7,10 +7,10 @@
 package syscall
 
 import (
-	"internal/oserror"
-	"internal/race"
-	"internal/unsafeheader"
 	"runtime"
+	"std/internal/oserror"
+	"std/internal/race"
+	"std/internal/unsafeheader"
 	"sync"
 	"unsafe"
 )

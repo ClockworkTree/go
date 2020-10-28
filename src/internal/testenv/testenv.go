@@ -13,11 +13,11 @@ package testenv
 import (
 	"errors"
 	"flag"
-	"internal/cfg"
 	"os"
 	"os/exec"
 	"path/filepath"
 	"runtime"
+	"std/internal/cfg"
 	"strconv"
 	"strings"
 	"sync"

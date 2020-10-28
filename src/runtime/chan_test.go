@@ -5,9 +5,9 @@
 package runtime_test
 
 import (
-	"internal/testenv"
 	"math"
 	"runtime"
+	"std/internal/testenv"
 	"sync"
 	"sync/atomic"
 	"testing"

@@ -5,12 +5,12 @@
 package modload
 
 import (
-	"internal/testenv"
 	"io/ioutil"
 	"log"
 	"os"
 	"path"
 	"path/filepath"
+	"std/internal/testenv"
 	"strings"
 	"testing"
 

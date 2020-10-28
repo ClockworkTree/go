@@ -6,12 +6,12 @@ package lzw
 
 import (
 	"fmt"
-	"internal/testenv"
 	"io"
 	"io/ioutil"
 	"math"
 	"os"
 	"runtime"
+	"std/internal/testenv"
 	"testing"
 )
 

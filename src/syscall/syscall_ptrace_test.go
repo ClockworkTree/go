@@ -7,9 +7,9 @@
 package syscall_test
 
 import (
-	"internal/testenv"
 	"os"
 	"os/exec"
+	"std/internal/testenv"
 	"syscall"
 	"testing"
 )

@@ -4,7 +4,7 @@
 
 package bytealg
 
-import "internal/cpu"
+import "std/internal/cpu"
 
 const MaxBruteForce = 64
 

@@ -39,7 +39,7 @@ var omit_pkgs = []string{
 	"runtime",
 	"runtime/race",
 	"runtime/msan",
-	"internal/cpu",
+	"std/internal/cpu",
 }
 
 // Only insert racefuncenterfp/racefuncexit into the following packages.

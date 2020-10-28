@@ -7,7 +7,7 @@
 package atomic
 
 import (
-	"internal/cpu"
+	"std/internal/cpu"
 	"unsafe"
 )
 

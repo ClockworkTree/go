@@ -12,8 +12,6 @@ import (
 	"flag"
 	"fmt"
 	"go/format"
-	"internal/race"
-	"internal/testenv"
 	"io"
 	"io/ioutil"
 	"log"
@@ -22,6 +20,8 @@ import (
 	"path/filepath"
 	"regexp"
 	"runtime"
+	"std/internal/race"
+	"std/internal/testenv"
 	"strconv"
 	"strings"
 	"testing"
@@ -1131,9 +1131,9 @@ func TestGoListDeps(t *testing.T) {
 	if runtime.Compiler != "gccgo" {
 		// Check the list is in dependency order.
 		tg.run("list", "-deps", "math")
-		want := "internal/cpu\nunsafe\nmath/bits\nmath\n"
+		want := "std/internal/cpu\nunsafe\nmath/bits\nmath\n"
 		out := tg.stdout.String()
-		if !strings.Contains(out, "internal/cpu") {
+		if !strings.Contains(out, "std/internal/cpu") {
 			// Some systems don't use internal/cpu.
 			want = "unsafe\nmath/bits\nmath\n"
 		}

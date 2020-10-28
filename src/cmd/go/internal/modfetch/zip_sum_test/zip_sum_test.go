@@ -21,11 +21,11 @@ import (
 	"encoding/hex"
 	"flag"
 	"fmt"
-	"internal/testenv"
 	"io"
 	"io/ioutil"
 	"os"
 	"path/filepath"
+	"std/internal/testenv"
 	"strings"
 	"testing"
 

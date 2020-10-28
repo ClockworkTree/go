@@ -7,9 +7,9 @@ package net
 import (
 	"context"
 	"errors"
-	"internal/bytealg"
 	"io"
 	"os"
+	"std/internal/bytealg"
 )
 
 func query(ctx context.Context, filename, query string, bufSize int) (addrs []string, err error) {

@@ -1399,7 +1399,7 @@ func findInternal(path string) (index int, ok bool) {
 		return len(path) - len("internal"), true
 	case strings.Contains(path, "/internal/"):
 		return strings.LastIndex(path, "/internal/") + 1, true
-	case path == "internal", strings.HasPrefix(path, "internal/"):
+	case path == "internal", strings.HasPrefix(path, "std/internal/"):
 		return 0, true
 	}
 	return 0, false

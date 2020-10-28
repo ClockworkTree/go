@@ -9,10 +9,10 @@ package pprof
 import (
 	"bytes"
 	"fmt"
-	"internal/profile"
 	"reflect"
 	"regexp"
 	"runtime"
+	"std/internal/profile"
 	"testing"
 	"unsafe"
 )

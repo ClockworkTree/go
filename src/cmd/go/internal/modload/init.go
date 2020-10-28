@@ -10,12 +10,12 @@ import (
 	"errors"
 	"fmt"
 	"go/build"
-	"internal/lazyregexp"
 	"io/ioutil"
 	"os"
 	"path"
 	"path/filepath"
 	"runtime/debug"
+	"std/internal/lazyregexp"
 	"strconv"
 	"strings"
 

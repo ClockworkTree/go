@@ -6,6 +6,6 @@
 
 package big
 
-import "internal/cpu"
+import "std/internal/cpu"
 
 var support_adx = cpu.X86.HasADX && cpu.X86.HasBMI2

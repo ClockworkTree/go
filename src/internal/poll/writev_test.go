@@ -5,8 +5,8 @@
 package poll_test
 
 import (
-	"internal/poll"
 	"reflect"
+	"std/internal/poll"
 	"testing"
 )
 

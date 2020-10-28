@@ -9,8 +9,8 @@
 package reflectlite_test
 
 import (
-	. "internal/reflectlite"
 	"reflect"
+	. "std/internal/reflectlite"
 	"strconv"
 )
 

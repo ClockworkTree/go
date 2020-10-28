@@ -6,10 +6,10 @@ package big
 
 import (
 	"bytes"
-	"internal/testenv"
 	"io/ioutil"
 	"os/exec"
 	"path/filepath"
+	"std/internal/testenv"
 	"testing"
 )
 

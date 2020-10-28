@@ -10,10 +10,10 @@ import (
 	"debug/elf"
 	"fmt"
 	"go/types"
-	"internal/xcoff"
 	"io"
 	"os"
 	"path/filepath"
+	"std/internal/xcoff"
 	"strings"
 )
 

@@ -4,7 +4,7 @@
 
 package sha256
 
-import "internal/cpu"
+import "std/internal/cpu"
 
 var k = _K
 

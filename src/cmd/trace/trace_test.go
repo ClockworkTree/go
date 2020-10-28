@@ -8,9 +8,9 @@ package main
 
 import (
 	"context"
-	"internal/trace"
 	"io/ioutil"
 	rtrace "runtime/trace"
+	"std/internal/trace"
 	"strings"
 	"sync"
 	"testing"

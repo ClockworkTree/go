@@ -7,9 +7,9 @@
 package net
 
 import (
-	"internal/testenv"
 	"reflect"
 	"runtime"
+	"std/internal/testenv"
 	"testing"
 	"time"
 )

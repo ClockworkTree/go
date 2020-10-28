@@ -7,7 +7,7 @@
 package syscall
 
 import (
-	"internal/oserror"
+	"std/internal/oserror"
 	"sync"
 	"unsafe"
 )

@@ -6,7 +6,7 @@ package bytes_test
 
 import (
 	. "bytes"
-	"internal/testenv"
+	"std/internal/testenv"
 	"testing"
 )
 

@@ -4,7 +4,7 @@
 
 package runtime
 
-import "internal/cpu"
+import "std/internal/cpu"
 
 const (
 	_HWCAP_VFP   = 1 << 6  // introduced in at least 2.6.11

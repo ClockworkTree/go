@@ -5,8 +5,8 @@
 package main_test
 
 import (
-	"internal/testenv"
 	"os/exec"
+	"std/internal/testenv"
 	"testing"
 )
 

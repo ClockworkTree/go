@@ -6,7 +6,7 @@
 
 package net
 
-import "internal/poll"
+import "std/internal/poll"
 
 var (
 	// Placeholders for saving original socket system calls.

@@ -6,8 +6,8 @@ package poll_test
 
 import (
 	"fmt"
-	"internal/poll"
 	"os"
+	"std/internal/poll"
 	"sync"
 	"syscall"
 	"testing"

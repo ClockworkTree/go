@@ -20,8 +20,8 @@
 package runtime
 
 import (
-	"internal/cpu"
 	"runtime/internal/atomic"
+	"std/internal/cpu"
 	"unsafe"
 )
 

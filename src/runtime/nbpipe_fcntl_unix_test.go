@@ -7,7 +7,7 @@
 package runtime_test
 
 import (
-	"internal/syscall/unix"
+	"std/internal/syscall/unix"
 	"syscall"
 )
 

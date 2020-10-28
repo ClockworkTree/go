@@ -6,8 +6,8 @@ package net
 
 import (
 	"context"
-	"internal/nettrace"
-	"internal/singleflight"
+	"std/internal/nettrace"
+	"std/internal/singleflight"
 	"sync"
 )
 

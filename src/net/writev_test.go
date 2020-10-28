@@ -9,11 +9,11 @@ package net
 import (
 	"bytes"
 	"fmt"
-	"internal/poll"
 	"io"
 	"io/ioutil"
 	"reflect"
 	"runtime"
+	"std/internal/poll"
 	"sync"
 	"testing"
 )

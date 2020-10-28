@@ -5,11 +5,11 @@
 package gc
 
 import (
-	"internal/testenv"
 	"io/ioutil"
 	"os"
 	"os/exec"
 	"path/filepath"
+	"std/internal/testenv"
 	"testing"
 )
 

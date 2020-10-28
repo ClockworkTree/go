@@ -7,10 +7,10 @@ package buildid
 import (
 	"bytes"
 	"crypto/sha256"
-	"internal/obscuretestdata"
 	"io/ioutil"
 	"os"
 	"reflect"
+	"std/internal/obscuretestdata"
 	"testing"
 )
 

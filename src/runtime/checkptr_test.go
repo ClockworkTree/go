@@ -5,8 +5,8 @@
 package runtime_test
 
 import (
-	"internal/testenv"
 	"os/exec"
+	"std/internal/testenv"
 	"strings"
 	"testing"
 )

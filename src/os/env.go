@@ -7,7 +7,7 @@
 package os
 
 import (
-	"internal/testlog"
+	"std/internal/testlog"
 	"syscall"
 )
 

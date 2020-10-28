@@ -8,9 +8,9 @@ package windows_test
 
 import (
 	"fmt"
-	"internal/syscall/windows"
 	"os"
 	"os/exec"
+	"std/internal/syscall/windows"
 	"syscall"
 	"testing"
 	"unsafe"

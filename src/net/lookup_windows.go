@@ -6,9 +6,9 @@ package net
 
 import (
 	"context"
-	"internal/syscall/windows"
 	"os"
 	"runtime"
+	"std/internal/syscall/windows"
 	"syscall"
 	"unsafe"
 )

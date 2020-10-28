@@ -8,11 +8,11 @@ import (
 	"bytes"
 	"errors"
 	"fmt"
-	"internal/testenv"
 	"io"
 	"io/ioutil"
 	"reflect"
 	"runtime/debug"
+	"std/internal/testenv"
 	"sync"
 	"testing"
 )

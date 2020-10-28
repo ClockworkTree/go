@@ -7,7 +7,6 @@ package main
 import (
 	"encoding/json"
 	"fmt"
-	"internal/trace"
 	"io"
 	"log"
 	"math"
@@ -16,6 +15,7 @@ import (
 	"runtime"
 	"runtime/debug"
 	"sort"
+	"std/internal/trace"
 	"strconv"
 	"strings"
 	"time"

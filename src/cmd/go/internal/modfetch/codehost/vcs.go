@@ -7,12 +7,12 @@ package codehost
 import (
 	"errors"
 	"fmt"
-	"internal/lazyregexp"
 	"io"
 	"io/ioutil"
 	"os"
 	"path/filepath"
 	"sort"
+	"std/internal/lazyregexp"
 	"strconv"
 	"strings"
 	"sync"

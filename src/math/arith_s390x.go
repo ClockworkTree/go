@@ -4,7 +4,7 @@
 
 package math
 
-import "internal/cpu"
+import "std/internal/cpu"
 
 func log10TrampolineSetup(x float64) float64
 func log10Asm(x float64) float64

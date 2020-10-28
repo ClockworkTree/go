@@ -5,8 +5,8 @@
 package net
 
 import (
-	"internal/poll"
 	"io"
+	"std/internal/poll"
 )
 
 // splice transfers data from r to c using the splice system call to minimize

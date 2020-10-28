@@ -8,7 +8,7 @@ package doc
 
 import (
 	"bytes"
-	"internal/lazyregexp"
+	"std/internal/lazyregexp"
 	"io"
 	"strings"
 	"text/template" // for HTMLEscape

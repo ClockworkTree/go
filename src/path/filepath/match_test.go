@@ -6,13 +6,13 @@ package filepath_test
 
 import (
 	"fmt"
-	"internal/testenv"
 	"io/ioutil"
 	"os"
 	. "path/filepath"
 	"reflect"
 	"runtime"
 	"sort"
+	"std/internal/testenv"
 	"strings"
 	"testing"
 )

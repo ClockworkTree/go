@@ -4,7 +4,7 @@
 
 package runtime
 
-import "internal/cpu"
+import "std/internal/cpu"
 
 const (
 	// bit masks taken from bits/hwcap.h

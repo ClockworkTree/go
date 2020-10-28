@@ -5,7 +5,7 @@
 package os
 
 import (
-	"internal/syscall/windows"
+	"std/internal/syscall/windows"
 	"sync"
 	"syscall"
 	"time"

@@ -9,7 +9,7 @@ package exec_test
 
 import (
 	"fmt"
-	"internal/testenv"
+	"std/internal/testenv"
 	"io"
 	"io/ioutil"
 	"os"

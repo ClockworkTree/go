@@ -6,11 +6,11 @@ package signal
 
 import (
 	"bytes"
-	"internal/testenv"
 	"io/ioutil"
 	"os"
 	"os/exec"
 	"path/filepath"
+	"std/internal/testenv"
 	"syscall"
 	"testing"
 	"time"

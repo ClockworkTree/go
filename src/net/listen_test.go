@@ -9,9 +9,9 @@ package net
 import (
 	"context"
 	"fmt"
-	"internal/testenv"
 	"os"
 	"runtime"
+	"std/internal/testenv"
 	"syscall"
 	"testing"
 	"time"

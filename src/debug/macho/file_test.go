@@ -6,9 +6,9 @@ package macho
 
 import (
 	"bytes"
-	"internal/obscuretestdata"
 	"io"
 	"reflect"
+	"std/internal/obscuretestdata"
 	"testing"
 )
 

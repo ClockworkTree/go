@@ -8,10 +8,10 @@ package syscall
 
 import (
 	errorspkg "errors"
-	"internal/oserror"
-	"internal/race"
-	"internal/unsafeheader"
 	"runtime"
+	"std/internal/oserror"
+	"std/internal/race"
+	"std/internal/unsafeheader"
 	"sync"
 	"unicode/utf16"
 	"unsafe"

@@ -10,7 +10,6 @@ import (
 	"flag"
 	"fmt"
 	"html/template"
-	"internal/trace"
 	"io"
 	"log"
 	"net"
@@ -18,6 +17,7 @@ import (
 	"os"
 	"runtime"
 	"runtime/debug"
+	"std/internal/trace"
 	"sync"
 
 	_ "net/http/pprof" // Required to use pprof

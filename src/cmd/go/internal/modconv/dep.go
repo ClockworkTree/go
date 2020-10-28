@@ -6,9 +6,9 @@ package modconv
 
 import (
 	"fmt"
-	"internal/lazyregexp"
 	"net/url"
 	"path"
+	"std/internal/lazyregexp"
 	"strconv"
 	"strings"
 

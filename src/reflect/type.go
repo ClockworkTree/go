@@ -16,7 +16,7 @@
 package reflect
 
 import (
-	"internal/unsafeheader"
+	"std/internal/unsafeheader"
 	"strconv"
 	"sync"
 	"unicode"

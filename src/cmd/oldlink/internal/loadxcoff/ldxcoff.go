@@ -13,7 +13,7 @@ import (
 	"cmd/oldlink/internal/sym"
 	"errors"
 	"fmt"
-	"internal/xcoff"
+	"std/internal/xcoff"
 )
 
 // ldSection is an XCOFF section with its symbols.

@@ -5,8 +5,8 @@
 package sync
 
 import (
-	"internal/race"
 	"runtime"
+	"std/internal/race"
 	"sync/atomic"
 	"unsafe"
 )

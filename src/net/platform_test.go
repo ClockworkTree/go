@@ -5,10 +5,10 @@
 package net
 
 import (
-	"internal/testenv"
 	"os"
 	"os/exec"
 	"runtime"
+	"std/internal/testenv"
 	"strconv"
 	"strings"
 	"testing"

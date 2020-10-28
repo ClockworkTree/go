@@ -8,10 +8,10 @@ import (
 	"errors"
 	"fmt"
 	"go/build"
-	"internal/goroot"
 	"os"
 	"path/filepath"
 	"sort"
+	"std/internal/goroot"
 	"strings"
 	"time"
 

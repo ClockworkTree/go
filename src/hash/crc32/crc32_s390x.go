@@ -4,7 +4,7 @@
 
 package crc32
 
-import "internal/cpu"
+import "std/internal/cpu"
 
 const (
 	vxMinLen    = 64

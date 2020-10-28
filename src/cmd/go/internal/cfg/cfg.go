@@ -10,11 +10,11 @@ import (
 	"bytes"
 	"fmt"
 	"go/build"
-	"internal/cfg"
 	"io/ioutil"
 	"os"
 	"path/filepath"
 	"runtime"
+	"std/internal/cfg"
 	"strings"
 	"sync"
 

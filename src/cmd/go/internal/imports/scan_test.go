@@ -6,11 +6,11 @@ package imports
 
 import (
 	"bytes"
-	"internal/testenv"
 	"io/ioutil"
 	"path"
 	"path/filepath"
 	"runtime"
+	"std/internal/testenv"
 	"strings"
 	"testing"
 )

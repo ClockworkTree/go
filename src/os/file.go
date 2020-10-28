@@ -42,10 +42,10 @@ package os
 
 import (
 	"errors"
-	"internal/poll"
-	"internal/testlog"
 	"io"
 	"runtime"
+	"std/internal/poll"
+	"std/internal/testlog"
 	"syscall"
 	"time"
 )

@@ -4,6 +4,6 @@
 
 package sha1
 
-import "internal/cpu"
+import "std/internal/cpu"
 
 var useAsm = cpu.S390X.HasSHA1

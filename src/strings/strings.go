@@ -8,7 +8,7 @@
 package strings
 
 import (
-	"internal/bytealg"
+	"std/internal/bytealg"
 	"unicode"
 	"unicode/utf8"
 )

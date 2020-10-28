@@ -7,7 +7,7 @@ package aes
 import (
 	"crypto/cipher"
 	"crypto/internal/subtle"
-	"internal/cpu"
+	"std/internal/cpu"
 )
 
 type code int

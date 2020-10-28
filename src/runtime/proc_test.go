@@ -6,12 +6,12 @@ package runtime_test
 
 import (
 	"fmt"
-	"internal/race"
-	"internal/testenv"
 	"math"
 	"net"
 	"runtime"
 	"runtime/debug"
+	"std/internal/race"
+	"std/internal/testenv"
 	"strings"
 	"sync"
 	"sync/atomic"

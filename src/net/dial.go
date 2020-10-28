@@ -6,7 +6,7 @@ package net
 
 import (
 	"context"
-	"internal/nettrace"
+	"std/internal/nettrace"
 	"syscall"
 	"time"
 )

@@ -6,7 +6,7 @@
 
 package net
 
-import "internal/poll"
+import "std/internal/poll"
 
 func init() {
 	extraTestHookInstallers = append(extraTestHookInstallers, installAccept4TestHook)

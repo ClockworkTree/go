@@ -6,9 +6,9 @@ package cpu_test
 
 import (
 	"errors"
-	. "internal/cpu"
 	"io/ioutil"
 	"regexp"
+	. "std/internal/cpu"
 	"testing"
 )
 

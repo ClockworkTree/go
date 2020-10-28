@@ -5,7 +5,7 @@
 package time_test
 
 import (
-	"internal/syscall/windows/registry"
+	"std/internal/syscall/windows/registry"
 	"testing"
 	. "time"
 )

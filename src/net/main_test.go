@@ -9,10 +9,10 @@ package net
 import (
 	"flag"
 	"fmt"
-	"net/internal/socktest"
 	"os"
 	"runtime"
 	"sort"
+	"std/net/internal/socktest"
 	"strings"
 	"sync"
 	"testing"

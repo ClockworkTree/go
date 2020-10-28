@@ -7,8 +7,8 @@
 package net
 
 import (
-	"internal/poll"
 	"os"
+	"std/internal/poll"
 	"syscall"
 )
 

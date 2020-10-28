@@ -49,7 +49,7 @@ package context
 
 import (
 	"errors"
-	"internal/reflectlite"
+	"std/internal/reflectlite"
 	"sync"
 	"sync/atomic"
 	"time"

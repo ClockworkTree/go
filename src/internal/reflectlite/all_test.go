@@ -7,10 +7,10 @@ package reflectlite_test
 import (
 	"encoding/base64"
 	"fmt"
-	. "internal/reflectlite"
 	"math"
 	"reflect"
 	"runtime"
+	. "std/internal/reflectlite"
 	"testing"
 	"unsafe"
 )
@@ -777,7 +777,7 @@ func TestImportPath(t *testing.T) {
 		{TypeOf(map[string]int{}), ""},
 		{TypeOf((*error)(nil)).Elem(), ""},
 		{TypeOf((*Point)(nil)), ""},
-		{TypeOf((*Point)(nil)).Elem(), "internal/reflectlite_test"},
+		{TypeOf((*Point)(nil)).Elem(), "std/internal/reflectlite_test"},
 	}
 	for _, test := range tests {
 		if path := test.t.PkgPath(); path != test.path {

@@ -12,7 +12,7 @@
 package syscall
 
 import (
-	"internal/oserror"
+	"std/internal/oserror"
 	"unsafe"
 )
 

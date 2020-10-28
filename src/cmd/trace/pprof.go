@@ -9,7 +9,6 @@ package main
 import (
 	"bufio"
 	"fmt"
-	"internal/trace"
 	"io"
 	"io/ioutil"
 	"net/http"
@@ -18,6 +17,7 @@ import (
 	"path/filepath"
 	"runtime"
 	"sort"
+	"std/internal/trace"
 	"strconv"
 	"time"
 

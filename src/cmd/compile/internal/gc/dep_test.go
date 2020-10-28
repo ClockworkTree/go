@@ -5,8 +5,8 @@
 package gc
 
 import (
-	"internal/testenv"
 	"os/exec"
+	"std/internal/testenv"
 	"strings"
 	"testing"
 )

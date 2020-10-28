@@ -6,9 +6,9 @@ package poll
 
 import (
 	"errors"
-	"internal/race"
-	"internal/syscall/windows"
 	"io"
+	"std/internal/race"
+	"std/internal/syscall/windows"
 	"sync"
 	"syscall"
 	"unicode/utf16"

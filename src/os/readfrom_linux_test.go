@@ -6,12 +6,12 @@ package os_test
 
 import (
 	"bytes"
-	"internal/poll"
 	"io"
 	"io/ioutil"
 	"math/rand"
 	. "os"
 	"path/filepath"
+	"std/internal/poll"
 	"strconv"
 	"syscall"
 	"testing"

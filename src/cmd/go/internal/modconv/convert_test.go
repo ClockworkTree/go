@@ -7,12 +7,12 @@ package modconv
 import (
 	"bytes"
 	"fmt"
-	"internal/testenv"
 	"io/ioutil"
 	"log"
 	"os"
 	"os/exec"
 	"path/filepath"
+	"std/internal/testenv"
 	"strings"
 	"testing"
 

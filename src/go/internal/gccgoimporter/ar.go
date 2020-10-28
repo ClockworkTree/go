@@ -9,8 +9,8 @@ import (
 	"debug/elf"
 	"errors"
 	"fmt"
-	"internal/xcoff"
 	"io"
+	"std/internal/xcoff"
 	"strconv"
 	"strings"
 )

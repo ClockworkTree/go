@@ -7,7 +7,6 @@ package pe
 import (
 	"bytes"
 	"debug/dwarf"
-	"internal/testenv"
 	"io/ioutil"
 	"os"
 	"os/exec"
@@ -15,6 +14,7 @@ import (
 	"reflect"
 	"regexp"
 	"runtime"
+	"std/internal/testenv"
 	"strconv"
 	"testing"
 	"text/template"

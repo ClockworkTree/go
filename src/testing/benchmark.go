@@ -7,12 +7,12 @@ package testing
 import (
 	"flag"
 	"fmt"
-	"internal/race"
 	"io"
 	"math"
 	"os"
 	"runtime"
 	"sort"
+	"std/internal/race"
 	"strconv"
 	"strings"
 	"sync"

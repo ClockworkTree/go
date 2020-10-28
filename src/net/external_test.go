@@ -8,8 +8,8 @@ package net
 
 import (
 	"fmt"
-	"internal/testenv"
 	"io"
+	"std/internal/testenv"
 	"strings"
 	"testing"
 )

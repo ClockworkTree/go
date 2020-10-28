@@ -6,8 +6,8 @@ package poll_test
 
 import (
 	"errors"
-	"internal/poll"
 	"os"
+	"std/internal/poll"
 	"syscall"
 )
 

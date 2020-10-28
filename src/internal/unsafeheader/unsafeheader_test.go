@@ -6,8 +6,8 @@ package unsafeheader_test
 
 import (
 	"bytes"
-	"internal/unsafeheader"
 	"reflect"
+	"std/internal/unsafeheader"
 	"testing"
 	"unsafe"
 )

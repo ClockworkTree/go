@@ -8,8 +8,8 @@ package elliptic
 
 import (
 	"crypto/subtle"
-	"internal/cpu"
 	"math/big"
+	"std/internal/cpu"
 	"unsafe"
 )
 

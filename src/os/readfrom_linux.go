@@ -5,8 +5,8 @@
 package os
 
 import (
-	"internal/poll"
 	"io"
+	"std/internal/poll"
 )
 
 var pollCopyFileRange = poll.CopyFileRange

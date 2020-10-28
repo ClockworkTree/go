@@ -5,9 +5,9 @@
 package os
 
 import (
-	"internal/poll"
 	"io"
 	"runtime"
+	"std/internal/poll"
 	"syscall"
 	"time"
 )

@@ -7,13 +7,13 @@
 package race_test
 
 import (
-	"internal/testenv"
 	"io/ioutil"
 	"os"
 	"os/exec"
 	"path/filepath"
 	"regexp"
 	"runtime"
+	"std/internal/testenv"
 	"strings"
 	"testing"
 )

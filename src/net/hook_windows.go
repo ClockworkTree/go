@@ -5,7 +5,7 @@
 package net
 
 import (
-	"internal/syscall/windows"
+	"std/internal/syscall/windows"
 	"syscall"
 	"time"
 )

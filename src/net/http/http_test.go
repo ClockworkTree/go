@@ -8,10 +8,10 @@ package http
 
 import (
 	"bytes"
-	"internal/testenv"
 	"net/url"
 	"os/exec"
 	"reflect"
+	"std/internal/testenv"
 	"testing"
 	"time"
 )

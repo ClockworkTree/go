@@ -7,12 +7,12 @@ package arm64
 import (
 	"bytes"
 	"fmt"
-	"internal/testenv"
 	"io/ioutil"
 	"os"
 	"os/exec"
 	"path/filepath"
 	"regexp"
+	"std/internal/testenv"
 	"testing"
 )
 

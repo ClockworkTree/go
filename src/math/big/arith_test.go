@@ -6,8 +6,8 @@ package big
 
 import (
 	"fmt"
-	"internal/testenv"
 	"math/rand"
+	"std/internal/testenv"
 	"strings"
 	"testing"
 )

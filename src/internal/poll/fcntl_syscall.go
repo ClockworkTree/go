@@ -7,7 +7,7 @@
 package poll
 
 import (
-	"internal/syscall/unix"
+	"std/internal/syscall/unix"
 	"syscall"
 )
 

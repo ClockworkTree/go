@@ -5,7 +5,7 @@
 package rand
 
 import (
-	"internal/syscall/unix"
+	"std/internal/syscall/unix"
 )
 
 func init() {

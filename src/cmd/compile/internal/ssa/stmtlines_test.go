@@ -7,12 +7,12 @@ import (
 	"debug/macho"
 	"debug/pe"
 	"fmt"
-	"internal/testenv"
-	"internal/xcoff"
 	"io"
 	"os"
 	"runtime"
 	"sort"
+	"std/internal/testenv"
+	"std/internal/xcoff"
 	"testing"
 )
 

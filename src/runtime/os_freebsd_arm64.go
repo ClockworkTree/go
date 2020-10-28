@@ -4,7 +4,7 @@
 
 package runtime
 
-import "internal/cpu"
+import "std/internal/cpu"
 
 const (
 	hwcap_FP       = 1 << 0

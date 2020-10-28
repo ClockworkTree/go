@@ -7,7 +7,7 @@ package doc
 import (
 	"go/ast"
 	"go/token"
-	"internal/lazyregexp"
+	"std/internal/lazyregexp"
 	"sort"
 	"strconv"
 )

@@ -6,10 +6,10 @@ package sort_test
 
 import (
 	"fmt"
-	"internal/testenv"
 	"math"
 	"math/rand"
 	. "sort"
+	"std/internal/testenv"
 	"strconv"
 	stringspkg "strings"
 	"testing"

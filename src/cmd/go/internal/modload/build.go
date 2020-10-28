@@ -8,10 +8,10 @@ import (
 	"bytes"
 	"encoding/hex"
 	"fmt"
-	"internal/goroot"
 	"os"
 	"path/filepath"
 	"runtime/debug"
+	"std/internal/goroot"
 	"strings"
 
 	"cmd/go/internal/base"

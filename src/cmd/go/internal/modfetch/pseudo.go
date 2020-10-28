@@ -40,7 +40,7 @@ import (
 	"strings"
 	"time"
 
-	"internal/lazyregexp"
+	"std/internal/lazyregexp"
 
 	"golang.org/x/mod/module"
 	"golang.org/x/mod/semver"

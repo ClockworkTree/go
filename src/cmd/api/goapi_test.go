@@ -171,7 +171,7 @@ func TestSkipInternal(t *testing.T) {
 		{"net/http/internal-foo", true},
 		{"net/http/internal", false},
 		{"net/http/internal/bar", false},
-		{"internal/foo", false},
+		{"std/internal/foo", false},
 		{"internal", false},
 	}
 	for _, tt := range tests {

@@ -9,10 +9,10 @@ package runtime_test
 import (
 	"bytes"
 	"fmt"
-	"internal/testenv"
 	"os"
 	"os/exec"
 	"runtime"
+	"std/internal/testenv"
 	"strconv"
 	"strings"
 	"testing"

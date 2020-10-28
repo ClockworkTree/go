@@ -12,10 +12,10 @@ import (
 	"bytes"
 	"cmd/internal/objabi"
 	"fmt"
-	"internal/testenv"
 	"io/ioutil"
 	"os"
 	"os/exec"
+	"std/internal/testenv"
 	"testing"
 )
 

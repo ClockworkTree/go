@@ -6,11 +6,11 @@ package os_test
 
 import (
 	"fmt"
-	"internal/testenv"
 	"os"
 	osexec "os/exec"
 	"path/filepath"
 	"runtime"
+	"std/internal/testenv"
 	"testing"
 )
 

@@ -6,9 +6,9 @@ package fmtsort_test
 
 import (
 	"fmt"
-	"internal/fmtsort"
 	"math"
 	"reflect"
+	"std/internal/fmtsort"
 	"strings"
 	"testing"
 )

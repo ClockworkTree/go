@@ -5,8 +5,8 @@
 package net
 
 import (
-	"internal/poll"
-	"internal/syscall/unix"
+	"std/internal/poll"
+	"std/internal/syscall/unix"
 	"syscall"
 	"unsafe"
 )

@@ -5,9 +5,9 @@
 package debug_test
 
 import (
-	"internal/testenv"
 	"runtime"
 	. "runtime/debug"
+	"std/internal/testenv"
 	"testing"
 	"time"
 )

@@ -21,7 +21,6 @@ import (
 	"cmd/internal/sys"
 	"flag"
 	"fmt"
-	"internal/goversion"
 	"io"
 	"io/ioutil"
 	"log"
@@ -30,6 +29,7 @@ import (
 	"regexp"
 	"runtime"
 	"sort"
+	"std/internal/goversion"
 	"strconv"
 	"strings"
 )

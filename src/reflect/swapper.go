@@ -5,7 +5,7 @@
 package reflect
 
 import (
-	"internal/unsafeheader"
+	"std/internal/unsafeheader"
 	"unsafe"
 )
 

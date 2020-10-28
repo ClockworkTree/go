@@ -7,12 +7,12 @@ package main
 import (
 	"bufio"
 	"bytes"
-	"internal/testenv"
 	"io/ioutil"
 	"os"
 	"os/exec"
 	"path/filepath"
 	"runtime"
+	"std/internal/testenv"
 	"strings"
 	"testing"
 )

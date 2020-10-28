@@ -10,8 +10,8 @@ import (
 	"go/importer"
 	"go/parser"
 	"go/token"
-	"internal/testenv"
 	"sort"
+	"std/internal/testenv"
 	"testing"
 
 	. "go/types"

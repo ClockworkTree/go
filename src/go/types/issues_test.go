@@ -12,8 +12,8 @@ import (
 	"go/ast"
 	"go/importer"
 	"go/parser"
-	"internal/testenv"
 	"sort"
+	"std/internal/testenv"
 	"strings"
 	"testing"
 

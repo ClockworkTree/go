@@ -4,6 +4,6 @@
 
 package sha256
 
-import "internal/cpu"
+import "std/internal/cpu"
 
 var useAsm = cpu.S390X.HasSHA256

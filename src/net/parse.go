@@ -8,9 +8,9 @@
 package net
 
 import (
-	"internal/bytealg"
 	"io"
 	"os"
+	"std/internal/bytealg"
 	"time"
 )
 

@@ -6,8 +6,8 @@ package time
 
 import (
 	"errors"
-	"internal/syscall/windows/registry"
 	"runtime"
+	"std/internal/syscall/windows/registry"
 	"syscall"
 )
 

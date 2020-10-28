@@ -6,8 +6,8 @@ package net
 
 import (
 	"context"
-	"internal/bytealg"
 	"os"
+	"std/internal/bytealg"
 	"syscall"
 )
 

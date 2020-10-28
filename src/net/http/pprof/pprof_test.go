@@ -7,12 +7,12 @@ package pprof
 import (
 	"bytes"
 	"fmt"
-	"internal/profile"
 	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
 	"runtime"
 	"runtime/pprof"
+	"std/internal/profile"
 	"strings"
 	"sync"
 	"sync/atomic"

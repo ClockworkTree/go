@@ -9,11 +9,11 @@ package main
 import (
 	"fmt"
 	"html/template"
-	"internal/trace"
 	"log"
 	"net/http"
 	"reflect"
 	"sort"
+	"std/internal/trace"
 	"strconv"
 	"sync"
 	"time"

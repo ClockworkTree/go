@@ -6,7 +6,7 @@
 
 package sort
 
-import "internal/reflectlite"
+import "std/internal/reflectlite"
 
 var reflectValueOf = reflectlite.ValueOf
 var reflectSwapper = reflectlite.Swapper

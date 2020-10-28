@@ -12,10 +12,10 @@ package testdeps
 
 import (
 	"bufio"
-	"internal/testlog"
 	"io"
 	"regexp"
 	"runtime/pprof"
+	"std/internal/testlog"
 	"strings"
 	"sync"
 )

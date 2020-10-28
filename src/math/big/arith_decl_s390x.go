@@ -6,7 +6,7 @@
 
 package big
 
-import "internal/cpu"
+import "std/internal/cpu"
 
 func addVV_check(z, x, y []Word) (c Word)
 func addVV_vec(z, x, y []Word) (c Word)

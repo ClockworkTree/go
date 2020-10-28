@@ -7,8 +7,8 @@
 package socktest_test
 
 import (
-	"net/internal/socktest"
 	"os"
+	"std/net/internal/socktest"
 	"sync"
 	"syscall"
 	"testing"

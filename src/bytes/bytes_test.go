@@ -7,9 +7,9 @@ package bytes_test
 import (
 	. "bytes"
 	"fmt"
-	"internal/testenv"
 	"math/rand"
 	"reflect"
+	"std/internal/testenv"
 	"strings"
 	"testing"
 	"unicode"

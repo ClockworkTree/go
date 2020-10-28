@@ -3,7 +3,7 @@
 package registry
 
 import (
-	"internal/syscall/windows/sysdll"
+	"std/internal/syscall/windows/sysdll"
 	"syscall"
 	"unsafe"
 )

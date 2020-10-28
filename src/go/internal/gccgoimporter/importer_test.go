@@ -6,12 +6,12 @@ package gccgoimporter
 
 import (
 	"go/types"
-	"internal/testenv"
 	"io/ioutil"
 	"os"
 	"os/exec"
 	"path/filepath"
 	"regexp"
+	"std/internal/testenv"
 	"strconv"
 	"testing"
 )

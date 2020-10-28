@@ -8,8 +8,8 @@ package net
 
 import (
 	"context"
-	"internal/poll"
 	"os"
+	"std/internal/poll"
 	"syscall"
 )
 

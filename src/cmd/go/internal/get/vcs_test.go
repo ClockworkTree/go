@@ -6,11 +6,11 @@ package get
 
 import (
 	"errors"
-	"internal/testenv"
 	"io/ioutil"
 	"os"
 	"path"
 	"path/filepath"
+	"std/internal/testenv"
 	"testing"
 
 	"cmd/go/internal/web"

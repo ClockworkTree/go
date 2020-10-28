@@ -13,7 +13,6 @@ import (
 	"go/ast"
 	"go/printer"
 	"go/token"
-	"internal/xcoff"
 	"io"
 	"io/ioutil"
 	"os"
@@ -21,6 +20,7 @@ import (
 	"path/filepath"
 	"regexp"
 	"sort"
+	"std/internal/xcoff"
 	"strings"
 	"unicode"
 )

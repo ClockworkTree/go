@@ -6,12 +6,12 @@ package gc
 
 import (
 	"bufio"
-	"internal/testenv"
 	"io"
 	"math/bits"
 	"os/exec"
 	"regexp"
 	"runtime"
+	"std/internal/testenv"
 	"strings"
 	"testing"
 )

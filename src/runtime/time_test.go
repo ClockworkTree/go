@@ -8,10 +8,10 @@ import (
 	"bytes"
 	"encoding/binary"
 	"errors"
-	"internal/testenv"
 	"os/exec"
 	"reflect"
 	"runtime"
+	"std/internal/testenv"
 	"testing"
 )
 

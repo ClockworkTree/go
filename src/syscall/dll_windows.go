@@ -5,7 +5,7 @@
 package syscall
 
 import (
-	"internal/syscall/windows/sysdll"
+	"std/internal/syscall/windows/sysdll"
 	"sync"
 	"sync/atomic"
 	"unsafe"

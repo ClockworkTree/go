@@ -6,11 +6,11 @@ package gc_test
 
 import (
 	"bytes"
-	"internal/testenv"
 	"io/ioutil"
 	"os"
 	"os/exec"
 	"path/filepath"
+	"std/internal/testenv"
 	"testing"
 )
 

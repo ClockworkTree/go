@@ -9,10 +9,10 @@ package net
 import (
 	"bufio"
 	"context"
-	"internal/testenv"
 	"io"
 	"os"
 	"runtime"
+	"std/internal/testenv"
 	"strings"
 	"sync"
 	"testing"

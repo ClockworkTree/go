@@ -5,7 +5,7 @@
 package mime
 
 import (
-	"internal/syscall/windows/registry"
+	"std/internal/syscall/windows/registry"
 )
 
 func init() {

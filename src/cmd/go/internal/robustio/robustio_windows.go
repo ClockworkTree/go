@@ -6,7 +6,7 @@ package robustio
 
 import (
 	"errors"
-	"internal/syscall/windows"
+	"std/internal/syscall/windows"
 	"syscall"
 )
 

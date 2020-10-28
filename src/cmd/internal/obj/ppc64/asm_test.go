@@ -5,12 +5,12 @@
 package ppc64
 
 import (
-	"internal/testenv"
 	"io/ioutil"
 	"os"
 	"os/exec"
 	"path/filepath"
 	"regexp"
+	"std/internal/testenv"
 	"strings"
 	"testing"
 )

@@ -8,11 +8,11 @@ import (
 	"bytes"
 	"errors"
 	"fmt"
-	"internal/testenv"
 	"io"
 	"math"
 	"os"
 	"runtime"
+	"std/internal/testenv"
 	"testing"
 	"testing/iotest"
 )

@@ -6,8 +6,8 @@ package main
 
 import "C"
 import (
-	"internal/syscall/windows"
 	"runtime"
+	"std/internal/syscall/windows"
 	"sync"
 	"syscall"
 	"unsafe"

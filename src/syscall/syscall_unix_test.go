@@ -9,7 +9,6 @@ package syscall_test
 import (
 	"flag"
 	"fmt"
-	"internal/testenv"
 	"io"
 	"io/ioutil"
 	"net"
@@ -17,6 +16,7 @@ import (
 	"os/exec"
 	"path/filepath"
 	"runtime"
+	"std/internal/testenv"
 	"strconv"
 	"syscall"
 	"testing"

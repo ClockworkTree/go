@@ -22,7 +22,7 @@ import (
 	"go/doc"
 	"go/parser"
 	"go/token"
-	"internal/lazyregexp"
+	"std/internal/lazyregexp"
 	"os"
 	"path/filepath"
 	"runtime"

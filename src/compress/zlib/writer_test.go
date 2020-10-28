@@ -7,10 +7,10 @@ package zlib
 import (
 	"bytes"
 	"fmt"
-	"internal/testenv"
 	"io"
 	"io/ioutil"
 	"os"
+	"std/internal/testenv"
 	"testing"
 )
 

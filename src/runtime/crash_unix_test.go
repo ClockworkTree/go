@@ -8,13 +8,13 @@ package runtime_test
 
 import (
 	"bytes"
-	"internal/testenv"
 	"io"
 	"io/ioutil"
 	"os"
 	"os/exec"
 	"path/filepath"
 	"runtime"
+	"std/internal/testenv"
 	"strings"
 	"sync"
 	"syscall"

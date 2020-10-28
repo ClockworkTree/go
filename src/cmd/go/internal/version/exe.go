@@ -10,9 +10,9 @@ import (
 	"debug/macho"
 	"debug/pe"
 	"fmt"
-	"internal/xcoff"
 	"io"
 	"os"
+	"std/internal/xcoff"
 )
 
 // An exe is a generic interface to an OS executable (ELF, Mach-O, PE, XCOFF).
