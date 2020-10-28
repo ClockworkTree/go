@@ -18,6 +18,7 @@ const (
 	// Beyond indicating the general state of a G, the G status
 	// acts like a lock on the goroutine's stack (and hence its
 	// ability to execute user code).
+	/*除了表示协程的状态，还可以用于协程栈上的锁*/
 	//
 	// If you add to this list, add to the list
 	// of "okay during garbage collection" status
@@ -32,20 +33,24 @@ const (
 
 	// _Gidle means this goroutine was just allocated and has not
 	// yet been initialized.
+	/*Gidle 只分配了内存但是没有初始化的协程*/
 	_Gidle = iota // 0
 
 	// _Grunnable means this goroutine is on a run queue. It is
 	// not currently executing user code. The stack is not owned.
+	/*Grunnable 在run 队列里，但是还未被P分给M执行用户代码，还未被p分配堆栈和上下文*/
 	_Grunnable // 1
 
 	// _Grunning means this goroutine may execute user code. The
 	// stack is owned by this goroutine. It is not on a run queue.
 	// It is assigned an M and a P (g.m and g.m.p are valid).
+	/*Grunning 不在待运行队列中,被分配了一个p和m，正在执行用户代码,协程正在占用着stack*/
 	_Grunning // 2
 
 	// _Gsyscall means this goroutine is executing a system call.
 	// It is not executing user code. The stack is owned by this
 	// goroutine. It is not on a run queue. It is assigned an M.
+	/*Gsyccall 这个协程正在执行系统调用，不是执行用户代码,stack属于这个协程，不在运行队列中,这个协程被赋予一个M，但是P这是已经解绑然后分配给其他协程了*/
 	_Gsyscall // 3
 
 	// _Gwaiting means this goroutine is blocked in the runtime.
@@ -56,10 +61,13 @@ const (
 	// write parts of the stack under the appropriate channel
 	// lock. Otherwise, it is not safe to access the stack after a
 	// goroutine enters _Gwaiting (e.g., it may get moved).
+	/*Gwaiting 表明这个协程在运行时阻塞，协议没有在执行用户代码，也不再run 队列上，但是会在其他等待队列（如channel 等待队列)。
+	stack 不属于此协程，除了一种情况 */
 	_Gwaiting // 4
 
 	// _Gmoribund_unused is currently unused, but hardcoded in gdb
 	// scripts.
+	//Gmoribund 未被使用,但是hardcode 在gdb的脚步里
 	_Gmoribund_unused // 5
 
 	// _Gdead means this goroutine is currently unused. It may be
@@ -68,6 +76,8 @@ const (
 	// allocated. The G and its stack (if any) are owned by the M
 	// that is exiting the G or that obtained the G from the free
 	// list.
+	/*//_Gdead表示此goroutine当前未使用。它可能只是退出，此协程在free列表中，或者刚刚被初始化。它不执行用户代码。它可能有也可能没有分配堆栈。G及其堆栈（如果有的话）属于正在退出G或从feww列表中获取G的M*/
+
 	_Gdead // 6
 
 	// _Genqueue_unused is currently unused.
@@ -76,6 +86,8 @@ const (
 	// _Gcopystack means this goroutine's stack is being moved. It
 	// is not executing user code and is not on a run queue. The
 	// stack is owned by the goroutine that put it in _Gcopystack.
+	/**/
+	/*Gcopystack 表明此协程的stack 被转移了，协程没有在持续用户代码，并且协程没有在运行队列，stack属于此协程*/
 	_Gcopystack // 8
 
 	// _Gpreempted means this goroutine stopped itself for a
@@ -83,6 +95,7 @@ const (
 	// yet responsible for ready()ing it. Some suspendG must CAS
 	// the status to _Gwaiting to take responsibility for
 	// ready()ing this G.
+	/*Gpreempted 表示 协程因为 supendG(我理解，这也是一个队列)的抢占，停止了自己,有些类似 Gwating状态，不一样的是，没有什么事件会导致其转变为readying，todo*/
 	_Gpreempted // 9
 
 	// _Gscan combined with one of the above states other than
@@ -108,12 +121,14 @@ const (
 	// P status
 
 	// _Pidle means a P is not being used to run user code or the
-	// scheduler. Typically, it's on the idle P list and available
+	// scheduler. typically, it's on the idle P list and available
 	// to the scheduler, but it may just be transitioning between
 	// other states.
 	//
 	// The P is owned by the idle list or by whatever is
 	// transitioning its state. Its run queue is empty.
+	/*Pidle 表明 p未被使用去运行用户代码或调度器，大多数情况下，此状态表明p处于 空闲列表待被调度器调度，但小不部分情况也表示其实处于转移为其他状态的中间状态。
+	在这两种情况下，p的run 队列都是空的(队列里没有挂载G)*/
 	_Pidle = iota
 
 	// _Prunning means a P is owned by an M and is being used to
@@ -123,6 +138,13 @@ const (
 	// do), _Psyscall (when entering a syscall), or _Pgcstop (to
 	// halt for the GC). The M may also hand ownership of the P
 	// off directly to another M (e.g., to schedule a locked G).
+	/*Prunning 此状态表明P属于一个M并且被用于执行用户代码或运行调度器.
+	只有拥有P的M才被允许将P从Prunning改为其他状态.
+	- 可以改为Pidle  没有更多的工作去执行时
+	- psyscall 进入一个系统调用
+	- Pgcstop  为了GC停下来时
+	M也可以将P所属权交给另一个M，比如去调度一个Locked G
+	*/
 	_Prunning
 
 	// _Psyscall means a P is not running user code. It has
@@ -135,6 +157,7 @@ const (
 	// an M successfully CASes its original P back to _Prunning
 	// after a syscall, it must understand the P may have been
 	// used by another M in the interim.
+	/*todo*/
 	_Psyscall
 
 	// _Pgcstop means a P is halted for STW and owned by the M
@@ -145,12 +168,15 @@ const (
 	//
 	// The P retains its run queue and startTheWorld will restart
 	// the scheduler on Ps with non-empty run queues.
+	/*Pgcstop 表明 P因为 Stop The World 停止了运行，M将P改为Pgcstop状态.
+	P会保留其运行队列，并在startThe时，调度器会重启运行队列非空的P*/
 	_Pgcstop
 
 	// _Pdead means a P is no longer used (GOMAXPROCS shrank). We
 	// reuse Ps if GOMAXPROCS increases. A dead P is mostly
 	// stripped of its resources, though a few things remain
 	// (e.g., trace buffers).
+	/*Pdead 状态表示 P不再被使用，比如GOMAXPROCS 变小的时候，当其再增大时，会重新复用Pdead的p，*/
 	_Pdead
 )
 
