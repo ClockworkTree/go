@@ -123,6 +123,7 @@ func netpoll(delay int64) gList {
 	}
 	var events [128]epollevent
 retry:
+	// 调用epoll_wait获取就绪事件
 	n := epollwait(epfd, &events[0], int32(len(events)), waitms)
 	if n < 0 {
 		if n != -_EINTR {
@@ -166,6 +167,8 @@ retry:
 		if ev.events&(_EPOLLOUT|_EPOLLHUP|_EPOLLERR) != 0 {
 			mode += 'w'
 		}
+		// 对每个事件，调用了netpollready
+		// pd主要记录了与该socket关联的等待协程
 		if mode != 0 {
 			pd := *(**pollDesc)(unsafe.Pointer(&ev.data))
 			pd.everr = false

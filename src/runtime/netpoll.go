@@ -209,6 +209,7 @@ func poll_runtime_pollReset(pd *pollDesc, mode int) int {
 // This returns an error code; the codes are defined above.
 //go:linkname poll_runtime_pollWait internal/poll.runtime_pollWait
 func poll_runtime_pollWait(pd *pollDesc, mode int) int {
+	// 先检查该socket是否有error发生（如关闭、超时等）
 	errcode := netpollcheckerr(pd, int32(mode))
 	if errcode != pollNoError {
 		return errcode
@@ -217,6 +218,11 @@ func poll_runtime_pollWait(pd *pollDesc, mode int) int {
 	if GOOS == "solaris" || GOOS == "illumos" || GOOS == "aix" {
 		netpollarm(pd, mode)
 	}
+	// 循环等待netpollblock返回值为true
+	// 如果返回值为false且该socket未出现任何错误
+	// 那该协程可能被意外唤醒，需要重新被挂起
+	// 还有一种可能：该socket由于超时而被唤醒
+	// 此时netpollcheckerr就是用来检测超时错误的
 	for !netpollblock(pd, int32(mode), false) {
 		errcode = netpollcheckerr(pd, int32(mode))
 		if errcode != pollNoError {
@@ -415,6 +421,9 @@ func netpollblock(pd *pollDesc, mode int32, waitio bool) bool {
 	}
 
 	// set the gpp semaphore to pdWait
+	// 首先将轮询状态设置为pdWait
+	// 为什么要使用for呢？因为casuintptr使用了自旋锁
+	// 为什么使用自旋锁就要加for循环呢？
 	for {
 		old := *gpp
 		if old == pdReady {
@@ -424,6 +433,8 @@ func netpollblock(pd *pollDesc, mode int32, waitio bool) bool {
 		if old != 0 {
 			throw("runtime: double wait")
 		}
+		// 将socket轮询相关的状态设置为pdWait
+
 		if atomic.Casuintptr(gpp, 0, pdWait) {
 			break
 		}
@@ -432,10 +443,14 @@ func netpollblock(pd *pollDesc, mode int32, waitio bool) bool {
 	// need to recheck error states after setting gpp to pdWait
 	// this is necessary because runtime_pollUnblock/runtime_pollSetDeadline/deadlineimpl
 	// do the opposite: store to closing/rd/wd, membarrier, load of rg/wg
+	// 如果未出错将该协程挂起，解锁函数是netpollblockcommit
 	if waitio || netpollcheckerr(pd, mode) == 0 {
 		gopark(netpollblockcommit, unsafe.Pointer(gpp), waitReasonIOWait, traceEvGoBlockNet, 5)
 	}
 	// be careful to not lose concurrent pdReady notification
+	// 可能是被挂起的协程被唤醒
+	// 或者由于某些原因该协程压根未被挂起
+	// 获取其当前状态记录在old中
 	old := atomic.Xchguintptr(gpp, 0)
 	if old > pdWait {
 		throw("runtime: corrupted polldesc")

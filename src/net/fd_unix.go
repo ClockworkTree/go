@@ -37,6 +37,9 @@ func newFD(sysfd, family, sotype int, net string) (*netFD, error) {
 	return ret, nil
 }
 
+/*所有网络相关的FD都需要通过netFD的init函数初始化,包括 listenFd,
+所有的网络FD pollable参数传入的都是true,
+因此所有FD都是绑定在同一个全局epoll上来监听的*/
 func (fd *netFD) init() error {
 	return fd.pfd.Init(fd.net, true)
 }
