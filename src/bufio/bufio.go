@@ -44,6 +44,9 @@ const maxConsecutiveEmptyReads = 100
 // NewReaderSize returns a new Reader whose buffer has at least the specified
 // size. If the argument io.Reader is already a Reader with large enough
 // size, it returns the underlying Reader.
+/*//NewReaderSize返回其缓冲区至少具有指定的大小的新读取器。
+如果论点io.Reader已经是具有足够大的大小的读取器，它返回基础读取器。
+相当于是分配内存buf*/
 func NewReaderSize(rd io.Reader, size int) *Reader {
 	// Is it already a Reader?
 	b, ok := rd.(*Reader)

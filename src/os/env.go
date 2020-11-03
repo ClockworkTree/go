@@ -136,6 +136,7 @@ func Clearenv() {
 
 // Environ returns a copy of strings representing the environment,
 // in the form "key=value".
+/*获取系统环境变量，返回为"key=value" 格式的数组*/
 func Environ() []string {
 	return syscall.Environ()
 }

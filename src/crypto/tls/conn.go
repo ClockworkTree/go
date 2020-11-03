@@ -31,6 +31,9 @@ type Conn struct {
 	// handshakeStatus is 1 if the connection is currently transferring
 	// application data (i.e. is not currently processing a handshake).
 	// This field is only to be accessed with sync/atomic.
+	/*
+		//如果连接当前正在传输//应用程序数据（即当前未处理握手），则handshakeStatus为1。//此字段只能通过sync/atomic访问。
+	*/
 	handshakeStatus uint32
 	// constant after handshake; protected by handshakeMutex
 	handshakeMutex sync.Mutex
@@ -41,9 +44,18 @@ type Conn struct {
 	// handshakes counts the number of handshakes performed on the
 	// connection so far. If renegotiation is disabled then this is either
 	// zero or one.
-	handshakes       int
-	didResume        bool // whether this connection was a session resumption
-	cipherSuite      uint16
+	/*
+		//handshakes统计迄今为止在连接上执行的握手数。如果重新协商被禁用，则该值为0或1。
+	*/
+	handshakes int
+
+	/*这个链接是否是一个会话恢复
+	一个用于标识会话是否能被用于初始化新连接的标签。
+	*/
+	didResume bool // whether this connection was a session resumption
+
+	cipherSuite uint16
+
 	ocspResponse     []byte   // stapled OCSP response
 	scts             [][]byte // signed certificate timestamps from server
 	peerCertificates []*x509.Certificate
@@ -65,8 +77,15 @@ type Conn struct {
 	// ticketKeys is the set of active session ticket keys for this
 	// connection. The first one is used to encrypt new tickets and
 	// all are tried to decrypt tickets.
+	/*
+		ticketKeys是此连接的活动会话票证密钥集。第一个用于加密新票证，所有人都试图解密票证。
+	*/
 	ticketKeys []ticketKey
 
+	/*
+		如果客户机在最近的握手过程中发送了第一个Finished消息，则clientFinishedIsFirst为true。
+		这是因为第一个传输的完成消息是tls唯一的通道绑定值。
+	*/
 	// clientFinishedIsFirst is true if the client sent the first Finished
 	// message during the most recent handshake. This is recorded because
 	// the first transmitted Finished message is the tls-unique
@@ -90,6 +109,7 @@ type Conn struct {
 	clientProtocolFallback bool
 
 	// input/output
+	/*半连接表示记录层//连接的一个方向，发送或接收。*/
 	in, out   halfConn
 	rawInput  bytes.Buffer // raw input, starting with a record header
 	input     bytes.Reader // application data waiting to be read, from rawInput.Next
@@ -100,6 +120,9 @@ type Conn struct {
 
 	// bytesSent counts the bytes of application data sent.
 	// packetsSent counts packets.
+	/*
+		//bytesSent统计发送的应用程序数据的字节数。//packetsSent统计数据包。
+	*/
 	bytesSent   int64
 	packetsSent int64
 
@@ -320,13 +343,16 @@ type cbcMode interface {
 
 // decrypt authenticates and decrypts the record if protection is active at
 // this stage. The returned plaintext might overlap with the input.
+/* 如果保护在此阶段处于活动状态，则解密对记录进行身份验证和解密。返回的明文可能与input 重叠。*/
 func (hc *halfConn) decrypt(record []byte) ([]byte, recordType, error) {
 	var plaintext []byte
 	typ := recordType(record[0])
+	/*前5个字节是header*/
 	payload := record[recordHeaderLen:]
 
 	// In TLS 1.3, change_cipher_spec messages are to be ignored without being
 	// decrypted. See RFC 8446, Appendix D.4.
+	/*在tls1.3中，change_cipher_spec消息将被忽略而不被解密。见RFC 8446，附录D.4。*/
 	if hc.version == VersionTLS13 && typ == recordTypeChangeCipherSpec {
 		return payload, typ, nil
 	}
@@ -592,6 +618,23 @@ func (c *Conn) readChangeCipherSpec() error {
 //   - c.hand grows
 //   - c.input is set
 //   - an error is returned
+
+/*readRecordOrCCS从连接读取一个或多个TLS记录，并更新记录层状态。
+某些不变量：
+*c.in必须被锁定
+*c.input必须为空
+在握手过程中，只有以下一种情况发生：
+-c.hand grows
+-c.in.changeCipherSpe 调用
+在握手后返回一个错误，并且只会发生下列情况之一：
+-c.hand grows
+-c.input被设置
+-错误为返回
+
+Record 记录层协议
+CCS -> change_cipher_spec (以下简称 CCS 协议) 协议，是 TLS 记录层对应用数据是否进行加密的分界线。客户端或者服务端一旦收到对端发来的 CCS 协议，就表明接下来传输数据过程中可以对应用数据协议进行加密了。
+*/
+
 func (c *Conn) readRecordOrCCS(expectChangeCipherSpec bool) error {
 	if c.in.err != nil {
 		return c.in.err
@@ -599,12 +642,15 @@ func (c *Conn) readRecordOrCCS(expectChangeCipherSpec bool) error {
 	handshakeComplete := c.handshakeComplete()
 
 	// This function modifies c.rawInput, which owns the c.input memory.
+	/*此函数用于修改c.rawInput，它拥有c.input内存。*/
 	if c.input.Len() != 0 {
 		return c.in.setErrorLocked(errors.New("tls: internal error: attempted to read record with pending application data"))
 	}
 	c.input.Reset(nil)
 
 	// Read header, payload.
+	/*消息头5个字节*/
+	/**/
 	if err := c.readFromUntil(c.conn, recordHeaderLen); err != nil {
 		// RFC 8446, Section 6.1 suggests that EOF without an alertCloseNotify
 		// is an error, but popular web sites seem to do this, so we accept it
@@ -617,20 +663,52 @@ func (c *Conn) readRecordOrCCS(expectChangeCipherSpec bool) error {
 		}
 		return err
 	}
+
+	/*TLS header 5个字节*/
 	hdr := c.rawInput.Bytes()[:recordHeaderLen]
+
+	/*类型一个字节
+	ContentType 是对握手协议的封装，消息头类型和握手层子协议编号的对应关系如下：
+	change_cipher_spec	0x014
+	alert	0x015
+	handshake	0x016
+	application_data	0x017
+	heartbeat (TLS 1.3 新增)	0x018
+	*/
 	typ := recordType(hdr[0])
 
 	// No valid TLS record has a type of 0x80, however SSLv2 handshakes
 	// start with a uint16 length where the MSB is set and the first record
 	// is always < 256 bytes long. Therefore typ == 0x80 strongly suggests
 	// an SSLv2 client.
+	/*//没有有效的TLS记录的类型为0x80，
+	但是SSLv2握手//以uint16长度开始，其中设置了MSB，
+	并且第一个记录//的长度始终小于256个字节。
+	因此typ==0x80强烈建议作为一个SSLv2客户机。*/
 	if !handshakeComplete && typ == 0x80 {
 		c.sendAlert(alertProtocolVersion)
 		return c.in.setErrorLocked(c.newRecordHeaderError(nil, "unsupported SSLv2 handshake received"))
 	}
 
+	/*获取版本，使用大端序 2-3, 2个字节
+	对于除初始 ClientHello 之外的 TLS 1.3 实现生成的所有记录(即，在 HelloRetryRequest 之后未生成的记录)，必须将其设置为 0x0303，其中出于兼容性目的，它也可以是0x0301。该字段在 TLS 1.3 中已经弃用，必须忽略它。在某些情况下，以前版本的 TLS 将在此字段中使用其他值。
+	在 TLS 1.3 中，version 为 0x0304，过去版本与 version 的对应关系如下：
+
+	协议版本	version
+	TLS 1.3	0x0304
+	TLS 1.2	0x0303
+	TLS 1.1	0x0302
+	TLS 1.0	0x0301
+	SSL 3.0	0x0300
+	*/
 	vers := uint16(hdr[1])<<8 | uint16(hdr[2])
+
+	/*4-5字节 是包体长度
+	ength:
+	TLSPlaintext.fragment 的长度(以字节为单位)。长度不得超过 2 ^ 14 字节。接收超过此长度的记录的端点必须使用 "record_overflow" alert 消息终止连接。
+	*/
 	n := int(hdr[3])<<8 | int(hdr[4])
+
 	if c.haveVers && c.vers != VersionTLS13 && vers != c.vers {
 		c.sendAlert(alertProtocolVersion)
 		msg := fmt.Sprintf("received record with version %x when expecting version %x", vers, c.vers)
@@ -641,15 +719,24 @@ func (c *Conn) readRecordOrCCS(expectChangeCipherSpec bool) error {
 		// client. Bail out before reading a full 'body', if possible.
 		// The current max version is 3.3 so if the version is >= 16.0,
 		// it's probably not real.
+		/*第一条消息，格外可疑：这可能不是TLS//客户机。
+		如果可能的话，在阅读完整的“身体”之前先退出。
+		当前的最高版本是3.3，所以如果版本>=16.0，/
+		能不是真的。*/
 		if (typ != recordTypeAlert && typ != recordTypeHandshake) || vers >= 0x1000 {
 			return c.in.setErrorLocked(c.newRecordHeaderError(c.conn, "first record does not look like a TLS handshake"))
 		}
 	}
+
+	/*长度校验*/
 	if c.vers == VersionTLS13 && n > maxCiphertextTLS13 || n > maxCiphertext {
 		c.sendAlert(alertRecordOverflow)
 		msg := fmt.Sprintf("oversized record received with length %d", n)
 		return c.in.setErrorLocked(c.newRecordHeaderError(nil, msg))
 	}
+
+	/*去取完整包体
+	可以看到TLS的协议是TLV类型的,未使用具体的结束标志位*/
 	if err := c.readFromUntil(c.conn, recordHeaderLen+n); err != nil {
 		if e, ok := err.(net.Error); !ok || !e.Temporary() {
 			c.in.setErrorLocked(err)
@@ -657,7 +744,9 @@ func (c *Conn) readRecordOrCCS(expectChangeCipherSpec bool) error {
 		return err
 	}
 
-	// Process message.
+	/*Next返回一个包含来自缓冲区的下n个字节的片段，推进缓冲区，就像读取返回的字节一样。
+	如果缓冲区中少于n个字节，Next将返回整个缓冲区。
+	切片仅在下次调用读或写方法之前有效。*/
 	record := c.rawInput.Next(recordHeaderLen + n)
 	data, typ, err := c.in.decrypt(record)
 	if err != nil {
@@ -678,6 +767,9 @@ func (c *Conn) readRecordOrCCS(expectChangeCipherSpec bool) error {
 	}
 
 	// Handshake messages MUST NOT be interleaved with other record types in TLS 1.3.
+	/*
+		//在TLS1.3中，握手消息不能与其他记录类型交错。
+	*/
 	if c.vers == VersionTLS13 && typ != recordTypeHandshake && c.hand.Len() > 0 {
 		return c.in.setErrorLocked(c.sendAlert(alertUnexpectedMessage))
 	}
@@ -686,6 +778,11 @@ func (c *Conn) readRecordOrCCS(expectChangeCipherSpec bool) error {
 	default:
 		return c.in.setErrorLocked(c.sendAlert(alertUnexpectedMessage))
 
+	/*
+		TLS 提供 alert 内容类型用来表示关闭信息和错误。与其他消息一样，alert 消息也会根据当前连接状态的进行加密。在 TLS 1.3 中，错误的严重性隐含在正在发送的警报类型中，并且可以安全地忽略 "level" 字段。"close_notify" alert 用于表示连接从一个方向开始有序的关闭。收到这样的警报后，TLS 实现方应该表明应用程序的数据结束。
+
+		收到错误警报后，TLS 实现方应该向应用程序表示出现了错误，并且不允许在连接上发送或接收任何其他数据。
+	*/
 	case recordTypeAlert:
 		if len(data) != 2 {
 			return c.in.setErrorLocked(c.sendAlert(alertUnexpectedMessage))
@@ -706,6 +803,9 @@ func (c *Conn) readRecordOrCCS(expectChangeCipherSpec bool) error {
 			return c.in.setErrorLocked(c.sendAlert(alertUnexpectedMessage))
 		}
 
+	/*
+		change_cipher_spec (以下简称 CCS 协议) 协议，是 TLS 记录层对应用数据是否进行加密的分界线。客户端或者服务端一旦收到对端发来的 CCS 协议，就表明接下来传输数据过程中可以对应用数据协议进行加密了。
+	*/
 	case recordTypeChangeCipherSpec:
 		if len(data) != 1 || data[0] != 1 {
 			return c.in.setErrorLocked(c.sendAlert(alertDecodeError))
@@ -789,6 +889,7 @@ func (r *atLeastReader) Read(p []byte) (int, error) {
 
 // readFromUntil reads from r into c.rawInput until c.rawInput contains
 // at least n bytes or else returns an error.
+/*readfromnitch从r读取到c.rawInput，直到c.rawInput包含至少n个字节，否则返回错误。*/
 func (c *Conn) readFromUntil(r io.Reader, n int) error {
 	if c.rawInput.Len() >= n {
 		return nil
@@ -822,6 +923,13 @@ func (c *Conn) sendAlertLocked(err alert) error {
 }
 
 // sendAlert sends a TLS alert message.
+/*
+TLS 提供 alert 内容类型用来表示关闭信息和错误。与其他消息一样，alert 消息也会根据当前连接状态的进行加密。
+在 TLS 1.3 中，错误的严重性隐含在正在发送的警报类型中，并且可以安全地忽略 "level" 字段。
+"close_notify" alert 用于表示连接从一个方向开始有序的关闭。收到这样的警报后，TLS 实现方应该表明应用程序的数据结束。
+
+收到错误警报后，TLS 实现方应该向应用程序表示出现了错误，并且不允许在连接上发送或接收任何其他数据。
+*/
 func (c *Conn) sendAlert(err alert) error {
 	c.out.Lock()
 	defer c.out.Unlock()
@@ -988,6 +1096,7 @@ func (c *Conn) writeRecord(typ recordType, data []byte) (int, error) {
 // readHandshake reads the next handshake message from
 // the record layer.
 func (c *Conn) readHandshake() (interface{}, error) {
+	/*header 4个字节*/
 	for c.hand.Len() < 4 {
 		if err := c.readRecord(); err != nil {
 			return nil, err
@@ -1235,6 +1344,8 @@ func (c *Conn) handleKeyUpdate(keyUpdate *keyUpdateMsg) error {
 
 // Read can be made to time out and return a net.Error with Timeout() == true
 // after a fixed time limit; see SetDeadline and SetReadDeadline.
+
+/*read 封账了net.conn的read()，会在read之前运行握手程序*/
 func (c *Conn) Read(b []byte) (int, error) {
 	if err := c.Handshake(); err != nil {
 		return 0, err
@@ -1345,6 +1456,26 @@ func (c *Conn) closeNotify() error {
 //
 // For control over canceling or setting a timeout on a handshake, use
 // the Dialer's DialContext method.
+
+/*Handshake运行客户端或服务器握手//协议（如果尚未运行）。
+
+此包的大多数用法不需要显式调用握手：第一次读或写操作将自动调用它。
+
+若要控制取消或设置握手超时，请使用Dialer's DialContext方法。*/
+
+/*
+TLS/SSL 协议位于应用层和传输层 TCP 协议之间。TLS 粗略的划分又可以分为 2 层：
+
+靠近应用层的握手协议 TLS Handshaking Protocols
+靠近 TCP 的记录层协议 TLS Record Protocol
+TLS 握手协议还能细分为 5 个子协议：
+
+change_cipher_spec (在 TLS 1.3 中这个协议已经删除，为了兼容 TLS 老版本，可能还会存在) : 密码切换协议
+alert : 警告协议
+handshake : 握手协议
+application_data : 应用数据协议
+heartbeat (这个是 TLS 1.3 新加的，TLS 1.3 之前的版本没有这个协议)  : 心跳协议
+*/
 func (c *Conn) Handshake() error {
 	c.handshakeMutex.Lock()
 	defer c.handshakeMutex.Unlock()
@@ -1352,6 +1483,7 @@ func (c *Conn) Handshake() error {
 	if err := c.handshakeErr; err != nil {
 		return err
 	}
+	/*如果已经握手完成，返回*/
 	if c.handshakeComplete() {
 		return nil
 	}

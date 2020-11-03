@@ -42,6 +42,12 @@ func (v *Value) Load() (x interface{}) {
 // Store sets the value of the Value to x.
 // All calls to Store for a given Value must use values of the same concrete type.
 // Store of an inconsistent type panics, as does Store(nil).
+
+/*
+Store将值的值设置为x。
+对给定值的所有Store调用都必须使用相同具体类型的值。
+不一致类型的存储会恐慌，就像Store（nil）一样。
+*/
 func (v *Value) Store(x interface{}) {
 	if x == nil {
 		panic("sync/atomic: store of nil value into Value")

@@ -37,6 +37,7 @@ type serverHandshakeState struct {
 
 // serverHandshake performs a TLS handshake as a server.
 func (c *Conn) serverHandshake() error {
+	/*读客户端握手*/
 	clientHello, err := c.readClientHello()
 	if err != nil {
 		return err
@@ -47,6 +48,7 @@ func (c *Conn) serverHandshake() error {
 			c:           c,
 			clientHello: clientHello,
 		}
+		/*返回服务端握手*/
 		return hs.handshake()
 	}
 
@@ -124,6 +126,7 @@ func (hs *serverHandshakeState) handshake() error {
 
 // readClientHello reads a ClientHello message and selects the protocol version.
 func (c *Conn) readClientHello() (*clientHelloMsg, error) {
+	/*读clientHello*/
 	msg, err := c.readHandshake()
 	if err != nil {
 		return nil, err
@@ -145,12 +148,17 @@ func (c *Conn) readClientHello() (*clientHelloMsg, error) {
 			c.config = configForClient
 		}
 	}
+
+	/*获取服务端秘钥列表*/
 	c.ticketKeys = originalConfig.ticketKeys(configForClient)
 
+	/*获取客户端支持版本列表,如果为空，服务端生成个版本*/
 	clientVersions := clientHello.supportedVersions
 	if len(clientHello.supportedVersions) == 0 {
 		clientVersions = supportedVersionsFromMax(clientHello.vers)
 	}
+
+	/**/
 	c.vers, ok = c.config.mutualVersion(clientVersions)
 	if !ok {
 		c.sendAlert(alertProtocolVersion)

@@ -32,6 +32,7 @@ func Request() (*http.Request, error) {
 		return nil, err
 	}
 	if r.ContentLength > 0 {
+		/*内容从标准输入获取*/
 		r.Body = ioutil.NopCloser(io.LimitReader(os.Stdin, r.ContentLength))
 	}
 	return r, nil
@@ -51,6 +52,7 @@ func envMap(env []string) map[string]string {
 // The returned Request's Body field is not populated.
 func RequestFromMap(params map[string]string) (*http.Request, error) {
 	r := new(http.Request)
+	/*从环境变量获取REQUEST_METHOD*/
 	r.Method = params["REQUEST_METHOD"]
 	if r.Method == "" {
 		return nil, errors.New("cgi: no REQUEST_METHOD in environment")

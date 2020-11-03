@@ -223,6 +223,7 @@ func (p *ReverseProxy) ServeHTTP(rw http.ResponseWriter, req *http.Request) {
 		notifyChan := cn.CloseNotify()
 		go func() {
 			select {
+			/*感知客户端是否关闭了连接，如果关闭了，下游的服务调用可以考虑是否要停止，比如不等待下游回包了,关闭下游连接*/
 			case <-notifyChan:
 				cancel()
 			case <-ctx.Done():

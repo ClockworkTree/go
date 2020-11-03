@@ -128,9 +128,13 @@ type Request struct {
 	// For client requests, these fields are ignored. The HTTP
 	// client code always uses either HTTP/1.1 or HTTP/2.
 	// See the docs on Transport for details.
-	Proto      string // "HTTP/1.0"
-	ProtoMajor int    // 1
-	ProtoMinor int    // 0
+
+	/* 服务端，这个值才有用
+	客户端这个值只能为 HTTP/1.1 or HTTP/2 */
+	Proto string // "HTTP/1.0"
+
+	ProtoMajor int // 1
+	ProtoMinor int // 0
 
 	// Header contains the request header fields either received
 	// by the server or to be sent by the client.
@@ -1365,6 +1369,12 @@ func (r *Request) FormFile(key string) (multipart.File, *multipart.FileHeader, e
 	return nil, nil, ErrMissingFile
 }
 
+/*
+Expect: 100-continue
+
+100-continue
+通知接收方客户端要发送一个体积可能很大的消息体，期望收到状态码为100 (Continue)  的临时回复。
+*/
 func (r *Request) expectsContinue() bool {
 	return hasToken(r.Header.get("Expect"), "100-continue")
 }

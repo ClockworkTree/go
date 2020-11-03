@@ -977,6 +977,9 @@ func (c *Config) supportsCurve(curve CurveID) bool {
 
 // mutualVersion returns the protocol version to use given the advertised
 // versions of the peer. Priority is given to the peer preference order.
+/*
+mutualVersion返回给定对等方的通告版本时要使用的协议版本。优先考虑对等优先顺序。
+*/
 func (c *Config) mutualVersion(peerVersions []uint16) (uint16, bool) {
 	supportedVersions := c.supportedVersions()
 	for _, peerVersion := range peerVersions {

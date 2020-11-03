@@ -248,6 +248,8 @@ var (
 type conn struct {
 	// server is the server on which the connection arrived.
 	// Immutable; never nil.
+
+	/*所属的 server*/
 	server *Server
 
 	// cancelCtx cancels the connection-level context.
@@ -276,12 +278,16 @@ type conn struct {
 	// r is bufr's read source. It's a wrapper around rwc that provides
 	// io.LimitedReader-style limiting (while reading request headers)
 	// and functionality to support CloseNotifier. See *connReader docs.
+
+	/*r是bufr的读取源。它是rwc的包装器，它提供//读写器-样式限制（读取请求头时）//以及支持CloseNotifier的功能。参见*connReader文档。*/
 	r *connReader
 
 	// bufr reads from r.
 	bufr *bufio.Reader
 
 	// bufw writes to checkConnErrorWriter{c}, which populates werr on error.
+
+	/* bufw写入checkConnErrorWriter{c}，它在出错时填充werr */
 	bufw *bufio.Writer
 
 	// lastMethod is the method of the most recent request
@@ -298,6 +304,9 @@ type conn struct {
 	// hijackedv is whether this connection has been hijacked
 	// by a Handler with the Hijacker interface.
 	// It is guarded by mu.
+
+	/*是否连接被 劫持接口 接触。由 mu 保证
+	标准库观察可能会被 net.rpc 包 和 http.httputil.reverse 反向代理包劫持*/
 	hijackedv bool
 }
 
@@ -651,6 +660,12 @@ type readResult struct {
 // read sizes) with support for selectively keeping an io.Reader.Read
 // call blocked in a background goroutine to wait for activity and
 // trigger a CloseNotifier channel.
+
+/*
+康纳德是io.读卡器由*conn使用的包装器。
+它组合了一个选择性激活的io.LimitedReader（绑定请求头//读取大小）
+支持有选择地保留io.Reader.Read调用在后台goroutine中被阻止以等待活动并触发CloseNotifier通道。
+*/
 type connReader struct {
 	conn *conn
 
@@ -953,10 +968,12 @@ var errTooLarge = errors.New("http: request too large")
 
 // Read next request from connection.
 func (c *conn) readRequest(ctx context.Context) (w *response, err error) {
+	/*当前连接是否被劫持*/
 	if c.hijacked() {
 		return nil, ErrHijacked
 	}
 
+	/*获取两个读时间超时时间*/
 	var (
 		wholeReqDeadline time.Time // or zero if none
 		hdrDeadline      time.Time // or zero if none
@@ -968,14 +985,22 @@ func (c *conn) readRequest(ctx context.Context) (w *response, err error) {
 	if d := c.server.ReadTimeout; d != 0 {
 		wholeReqDeadline = t0.Add(d)
 	}
+
+	/*设置读超时*/
 	c.rwc.SetReadDeadline(hdrDeadline)
+
+	/*函数返回后设置写事件超时*/
 	if d := c.server.WriteTimeout; d != 0 {
 		defer func() {
 			c.rwc.SetWriteDeadline(time.Now().Add(d))
 		}()
 	}
 
+	/*
+		设置最大readLimit 为 1MB + 4096
+	*/
 	c.r.setReadLimit(c.server.initialReadLimitSize())
+	/*如果此链接上次的 请求是 post*/
 	if c.lastMethod == "POST" {
 		// RFC 7230 section 3 tolerance for old buggy clients.
 		peek, _ := c.bufr.Peek(4) // ReadRequest will get err below
@@ -1739,17 +1764,25 @@ func validNextProto(proto string) bool {
 
 func (c *conn) setState(nc net.Conn, state ConnState) {
 	srv := c.server
+
 	switch state {
 	case StateNew:
+		/*新链接 加到server的全局链接map里*/
 		srv.trackConn(c, true)
 	case StateHijacked, StateClosed:
+		/*关闭或者被劫持 从server的全局链接map里删除*/
 		srv.trackConn(c, false)
 	}
+
 	if state > 0xff || state < 0 {
 		panic("internal error")
 	}
+
+	/*对于当前state 生成一个唯一值，存为链接当前状态*/
 	packedState := uint64(time.Now().Unix()<<8) | uint64(state)
 	atomic.StoreUint64(&c.curState.atomic, packedState)
+
+	/*state 设置状态时设置的回调，如果不为nil,则调用*/
 	if hook := srv.ConnState; hook != nil {
 		hook(nc, state)
 	}
@@ -1793,7 +1826,10 @@ func isCommonNetReadError(err error) bool {
 // Serve a new connection.
 func (c *conn) serve(ctx context.Context) {
 	c.remoteAddr = c.rwc.RemoteAddr().String()
+
+	/*set context value*/
 	ctx = context.WithValue(ctx, LocalAddrContextKey, c.rwc.LocalAddr())
+
 	defer func() {
 		if err := recover(); err != nil && err != ErrAbortHandler {
 			const size = 64 << 10
@@ -1807,17 +1843,28 @@ func (c *conn) serve(ctx context.Context) {
 		}
 	}()
 
+	/*查看 conn是否是 tls.conn, 这里是从tls.Listener accept 的struct实现了net.Conn的接口*/
 	if tlsConn, ok := c.rwc.(*tls.Conn); ok {
+
+		/*如果全局server 设置了读写超时
+		conn 也要相应设置*/
 		if d := c.server.ReadTimeout; d != 0 {
 			c.rwc.SetReadDeadline(time.Now().Add(d))
 		}
 		if d := c.server.WriteTimeout; d != 0 {
 			c.rwc.SetWriteDeadline(time.Now().Add(d))
 		}
+
+		/*这里就是TLS握手的实现了
+		其实tls.Conn 的read和write 都会在net.conn前自动运行握手协议
+		这里之所以显式调用， 是为了对握手错误做独立的处理*/
 		if err := tlsConn.Handshake(); err != nil {
 			// If the handshake failed due to the client not speaking
 			// TLS, assume they're speaking plaintext HTTP and write a
 			// 400 response on the TLS conn's underlying net.Conn.
+
+			//如果握手失败是由于客户机没有实现TLS
+			//我们会假设他们在讲明文HTTP，并在TLS conn的底层上写一个//400响应网络连接.
 			if re, ok := err.(tls.RecordHeaderError); ok && re.Conn != nil && tlsRecordHeaderLooksLikeHTTP(re.RecordHeader) {
 				io.WriteString(re.Conn, "HTTP/1.0 400 Bad Request\r\n\r\nClient sent an HTTP request to an HTTPS server.\n")
 				re.Conn.Close()
@@ -1826,7 +1873,10 @@ func (c *conn) serve(ctx context.Context) {
 			c.server.logf("http: TLS handshake error from %s: %v", c.rwc.RemoteAddr(), err)
 			return
 		}
+		/*如果握手成功，新分配tls.ConnectionState 赋值给net.conn.tlsState*/
 		c.tlsState = new(tls.ConnectionState)
+
+		/*对此结构具体分配内容*/
 		*c.tlsState = tlsConn.ConnectionState()
 		if proto := c.tlsState.NegotiatedProtocol; validNextProto(proto) {
 			if fn := c.server.TLSNextProto[proto]; fn != nil {
@@ -1839,20 +1889,29 @@ func (c *conn) serve(ctx context.Context) {
 
 	// HTTP/1.x from here on.
 
+	/*生成 child context*/
 	ctx, cancelCtx := context.WithCancel(ctx)
 	c.cancelCtx = cancelCtx
 	defer cancelCtx()
 
+	/* CloseNotifier 是connReader来触发的*/
 	c.r = &connReader{conn: c}
+	/*读缓冲*/
 	c.bufr = newBufioReader(c.r)
+	/*写缓冲*/
 	c.bufw = newBufioWriterSize(checkConnErrorWriter{c}, 4<<10)
 
+	/* 单链接上的事件循环 */
 	for {
 		w, err := c.readRequest(ctx)
+
+		/* todo ??*/
 		if c.r.remain != c.server.initialReadLimitSize() {
 			// If we read any bytes off the wire, we're active.
 			c.setState(c.rwc, StateActive)
 		}
+
+		/* 如果遇到error  并返回相应http 错误吗，并且在header 里表明关闭链接*/
 		if err != nil {
 			const errorHeaders = "\r\nContent-Type: text/plain; charset=utf-8\r\nConnection: close\r\n\r\n"
 
@@ -1896,17 +1955,25 @@ func (c *conn) serve(ctx context.Context) {
 
 		// Expect 100 Continue support
 		req := w.req
+		/*
+			Expect: 100-continue
+				100-continue
+			通知接收方客户端要发送一个体积可能很大的消息体，期望收到状态码为100 (Continue)  的临时回复。
+		*/
 		if req.expectsContinue() {
+			/*协议必须为http 1.1 到 1.1 之前*/
 			if req.ProtoAtLeast(1, 1) && req.ContentLength != 0 {
 				// Wrap the Body reader with one that replies on the connection
 				req.Body = &expectContinueReader{readCloser: req.Body, resp: w}
 				w.canWriteContinue.setTrue()
 			}
+			/* 如果不是 100-continue 返回错误 */
 		} else if req.Header.get("Expect") != "" {
 			w.sendExpectationFailed()
 			return
 		}
 
+		/* 设置回包到 net.conn.curReq atomic.Value */
 		c.curReq.Store(w)
 
 		if requestBodyRemains(req.Body) {
@@ -1922,7 +1989,19 @@ func (c *conn) serve(ctx context.Context) {
 		// in parallel even if their responses need to be serialized.
 		// But we're not going to implement HTTP pipelining because it
 		// was never deployed in the wild and the answer is HTTP/2.
+
+		/*
+			HTTP不能同时有多个活动请求。[*]
+			在服务器答复此请求之前，它无法读取另一个请求，
+			因此我们不妨在此goroutine中运行处理程序。
+			[*]不是严格正确的：HTTP pipeline。
+			我们可以让它们并行处理，即使它们的响应需要序列化。
+			但我们不打算实现HTTP pipeline，因为它从未在野外部署过，答案是HTTP/2。
+		*/
+
+		/*readRequest 直接返回了response， 说明是单链接上req 和rsp是 pipeline的*/
 		serverHandler{c.server}.ServeHTTP(w, w.req)
+
 		w.cancelCtx()
 		if c.hijacked() {
 			return
@@ -2017,6 +2096,7 @@ func registerOnHitEOF(rc io.ReadCloser, fn func()) {
 
 // requestBodyRemains reports whether future calls to Read
 // on rc might yield more data.
+/*r equestBodyRemains报告对rc的Read调用是否会产生更多的数据。*/
 func requestBodyRemains(rc io.ReadCloser) bool {
 	if rc == NoBody {
 		return false
@@ -2522,6 +2602,8 @@ type Server struct {
 	// in the form "host:port". If empty, ":http" (port 80) is used.
 	// The service names are defined in RFC 6335 and assigned by IANA.
 	// See net.Dial for details of the address format.
+
+	/*只有一个地址*/
 	Addr string
 
 	Handler Handler // handler to invoke, http.DefaultServeMux if nil
@@ -2599,23 +2681,31 @@ type Server struct {
 	// about to start accepting requests.
 	// If BaseContext is nil, the default is context.Background().
 	// If non-nil, it must return a non-nil context.
+
+	/*封装了context ，如果不为空，则调用*/
 	BaseContext func(net.Listener) context.Context
 
 	// ConnContext optionally specifies a function that modifies
 	// the context used for a new connection c. The provided ctx
 	// is derived from the base context and has a ServerContextKey
 	// value.
+	/*根据链接封装ctx 如果不为 nil，则会被调用*/
 	ConnContext func(ctx context.Context, c net.Conn) context.Context
 
 	inShutdown atomicBool // true when when server is in shutdown
 
-	disableKeepAlives int32     // accessed atomically.
-	nextProtoOnce     sync.Once // guards setupHTTP2_* init
-	nextProtoErr      error     // result of http2.ConfigureServer if used
+	disableKeepAlives int32 // accessed atomically.
 
-	mu         sync.Mutex
+	nextProtoOnce sync.Once // guards setupHTTP2_* init
+	nextProtoErr  error     // result of http2.ConfigureServer if used
+
+	mu sync.Mutex
+
+	/*这个结构保存了 server所有的 listerer
+	之所以有多个，理解为不同端口提供的服务，共用一个全局server*/
 	listeners  map[*net.Listener]struct{}
 	activeConn map[*conn]struct{}
+
 	doneChan   chan struct{}
 	onShutdown []func()
 }
@@ -2783,6 +2873,9 @@ const (
 	// send a request immediately. Connections begin at this
 	// state and then transition to either StateActive or
 	// StateClosed.
+
+	/*StateNew表示一个新连接，该连接预期立即发送请求。
+	连接从这个StateNew状态开始，然后转换到StateActive或//StateClosed。 */
 	StateNew ConnState = iota
 
 	// StateActive represents a connection that has read 1 or more
@@ -2796,6 +2889,9 @@ const (
 	// active requests are complete. That means that ConnState
 	// cannot be used to do per-request work; ConnState only notes
 	// the overall state of the connection.
+
+	/*stateActive 表明链接已经读到一个或更多 字节的请求
+	StateActive的钩子在请求进入处理程序之前激发，并且在处理请求之前不会再次激发。处理请求后，state//将转换为StateClosed、statehaicked或StateIdle。//对于HTTP/2，StateActive在从零//到一个活动请求的转换时激发，并且仅在所有//活动请求完成后才进行转换。这意味着ConnState//不能用于执行每个请求的工作；ConnState只记录//连接的整体状态。*/
 	StateActive
 
 	// StateIdle represents a connection that has finished
@@ -2828,6 +2924,8 @@ func (c ConnState) String() string {
 
 // serverHandler delegates to either the server's Handler or
 // DefaultServeMux and also handles "OPTIONS *" requests.
+
+/* serverHandler委托给服务器的处理程序或DefaultServeMux，还处理“OPTIONS*”请求。 */
 type serverHandler struct {
 	srv *Server
 }
@@ -2837,6 +2935,10 @@ func (sh serverHandler) ServeHTTP(rw ResponseWriter, req *Request) {
 	if handler == nil {
 		handler = DefaultServeMux
 	}
+	/*
+		https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Methods/OPTIONS
+		OPTIONS * HTTP/1.1
+	*/
 	if req.RequestURI == "*" && req.Method == "OPTIONS" {
 		handler = globalOptionsHandler{}
 	}
@@ -2904,25 +3006,38 @@ var ErrServerClosed = errors.New("http: Server closed")
 //
 // Serve always returns a non-nil error and closes l.
 // After Shutdown or Close, the returned error is ErrServerClosed.
+/*如果 listen 返回TlS的连接，则使用http2支持
+Serve总是返回非nil错误并关闭l。//在Shutdown或Close之后，返回的错误为ErrServerClosed。
+*/
 func (srv *Server) Serve(l net.Listener) error {
+	/*如果非空则 调用*/
 	if fn := testHookServerServe; fn != nil {
 		fn(srv, l) // call hook with unwrapped listener
 	}
 
 	origListener := l
+
+	/*保证close只会一次*/
 	l = &onceCloseListener{Listener: l}
 	defer l.Close()
 
+	/*todo*/
 	if err := srv.setupHTTP2_Serve(); err != nil {
 		return err
 	}
 
+	/*将listenfd 添加到 Server上*/
+	/*返回值 表示  server是否正在运行*/
 	if !srv.trackListener(&l, true) {
 		return ErrServerClosed
 	}
+
+	/*函数返回时删除*/
 	defer srv.trackListener(&l, false)
 
 	baseCtx := context.Background()
+
+	/*封装了context ，如果不为空，则调用*/
 	if srv.BaseContext != nil {
 		baseCtx = srv.BaseContext(origListener)
 		if baseCtx == nil {
@@ -2932,15 +3047,20 @@ func (srv *Server) Serve(l net.Listener) error {
 
 	var tempDelay time.Duration // how long to sleep on accept failure
 
+	/*将server 保存到ctx中，  ServerContextKey 是全局变量有默认值，标准库动态执行时没有赋值*/
 	ctx := context.WithValue(baseCtx, ServerContextKey, srv)
+
+	/*同步阻塞 accept 链接 （内部运行时是非阻塞的，gopack和toRun list ）*/
 	for {
 		rw, err := l.Accept()
 		if err != nil {
 			select {
+			/*如果 close or shutdown 可以向这个chan write*/
 			case <-srv.getDoneChan():
 				return ErrServerClosed
 			default:
 			}
+
 			if ne, ok := err.(net.Error); ok && ne.Temporary() {
 				if tempDelay == 0 {
 					tempDelay = 5 * time.Millisecond
@@ -2956,16 +3076,25 @@ func (srv *Server) Serve(l net.Listener) error {
 			}
 			return err
 		}
+
 		connCtx := ctx
+		/* 所有的conn的ctx 都是 全局baseCtx 的 childCtx*/
 		if cc := srv.ConnContext; cc != nil {
+			/*根据链接封装ctx 如果不为 nil，则会被调用*/
 			connCtx = cc(connCtx, rw)
 			if connCtx == nil {
 				panic("ConnContext returned nil")
 			}
 		}
 		tempDelay = 0
+		/*封装 net.conn 为 http.conn*/
 		c := srv.newConn(rw)
+
+		/*设置连接状态 为新链接*/
 		c.setState(c.rwc, StateNew) // before Serve can return
+
+		/*对这个链接启动个协程来处理
+		fasthttp 就是在这个地方通过协程池做了优化*/
 		go c.serve(connCtx)
 	}
 }
@@ -3019,23 +3148,30 @@ func (srv *Server) ServeTLS(l net.Listener, certFile, keyFile string) error {
 // Listener from another caller.
 //
 // It reports whether the server is still up (not Shutdown or Closed).
+/*将listenfd 添加到 Server上*/
+/*返回值 表示  server是否正在运行*/
 func (s *Server) trackListener(ln *net.Listener, add bool) bool {
 	s.mu.Lock()
 	defer s.mu.Unlock()
+	/*如果为空，初始化*/
 	if s.listeners == nil {
 		s.listeners = make(map[*net.Listener]struct{})
 	}
 	if add {
+		/*查看服务是否关闭*/
 		if s.shuttingDown() {
 			return false
 		}
+		/*加入listerner map*/
 		s.listeners[ln] = struct{}{}
 	} else {
+		/*把 ln从 builtin map中删除*/
 		delete(s.listeners, ln)
 	}
 	return true
 }
 
+/*添加或删除 conn*/
 func (s *Server) trackConn(c *conn, add bool) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -3180,6 +3316,7 @@ func (srv *Server) setupHTTP2_ServeTLS() error {
 // The tests named TestTransportAutomaticHTTP2* and
 // TestConcurrentServerServe in server_test.go demonstrate some
 // of the supported use cases and motivations.
+/*启动http2 服务*/
 func (srv *Server) setupHTTP2_Serve() error {
 	srv.nextProtoOnce.Do(srv.onceSetNextProtoDefaults_Serve)
 	return srv.nextProtoErr

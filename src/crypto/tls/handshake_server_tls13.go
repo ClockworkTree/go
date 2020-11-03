@@ -39,6 +39,7 @@ type serverHandshakeStateTLS13 struct {
 	clientFinished  []byte
 }
 
+/*这里是TLS握手的整体流程*/
 func (hs *serverHandshakeStateTLS13) handshake() error {
 	c := hs.c
 
@@ -81,6 +82,7 @@ func (hs *serverHandshakeStateTLS13) handshake() error {
 }
 
 func (hs *serverHandshakeStateTLS13) processClientHello() error {
+	/*tls.Conn*/
 	c := hs.c
 
 	hs.hello = new(serverHelloMsg)
@@ -104,10 +106,19 @@ func (hs *serverHandshakeStateTLS13) processClientHello() error {
 	// TLS 1.2, because a TLS 1.3 server would abort here. The situation before
 	// supported_versions was not better because there was just no way to do a
 	// TLS 1.4 handshake without risking the server selecting TLS 1.3.
+
+	/*如果客户端执行的回退和着陆低于我们的支持，则中止。
+	请参阅RFC 7507，但它没有指定与受支持的版本之间的交互。
+	唯一的区别是，对于支持的_版本，客户端有机会在TLS 1.3中断而1.2未中断的情况下尝试[TLS 1.2，TLS 1.4]握手。
+	唉，在这种情况下，如果它返回到TLS 1.2，它将不得不放弃TLS_FALLBACK_SCSV保护，因为TLS 1.3服务器将在此处中止。
+	在支持的_版本之前，情况并没有好转，因为在不让服务器选择TLS1.3的情况下，无法进行//TLS1.4握手。
+	*/
 	for _, id := range hs.clientHello.cipherSuites {
 		if id == TLS_FALLBACK_SCSV {
 			// Use c.vers instead of max(supported_versions) because an attacker
 			// could defeat this by adding an arbitrary high version otherwise.
+
+			/*使用c.vers而不是max（受支持的_版本），因为攻击者//可以通过添加任意的高版本来击败它。*/
 			if c.vers < c.config.maxSupportedVersion() {
 				c.sendAlert(alertInappropriateFallback)
 				return errors.New("tls: client using inappropriate protocol fallback")

@@ -14,6 +14,12 @@ const (
 	alertLevelError   = 2
 )
 
+/*
+TLS 提供 alert 内容类型用来表示关闭信息和错误。与其他消息一样，alert 消息也会根据当前连接状态的进行加密。在 TLS 1.3 中，错误的严重性隐含在正在发送的警报类型中，并且可以安全地忽略 "level" 字段。"close_notify" alert 用于表示连接从一个方向开始有序的关闭。收到这样的警报后，TLS 实现方应该表明应用程序的数据结束。
+收到错误警报后，TLS 实现方应该向应用程序表示出现了错误，并且不允许在连接上发送或接收任何其他数据。
+
+alert 协议告警描述信息常量
+*/
 const (
 	alertCloseNotify                  alert = 0
 	alertUnexpectedMessage            alert = 10

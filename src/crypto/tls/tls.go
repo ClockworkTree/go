@@ -32,11 +32,14 @@ import (
 // using conn as the underlying transport.
 // The configuration config must be non-nil and must include
 // at least one certificate or else set GetCertificate.
+/*这里就是go 标准库中对TLS层的实现入口了*/
 func Server(conn net.Conn, config *Config) *Conn {
 	c := &Conn{
 		conn:   conn,
 		config: config,
 	}
+	/*这里只是做了封装，但是并没有实际调用握手函数
+	需要在业务拿到conn后，对net.Conn 做类型断言*/
 	c.handshakeFn = c.serverHandshake
 	return c
 }
@@ -56,6 +59,7 @@ func Client(conn net.Conn, config *Config) *Conn {
 }
 
 // A listener implements a network listener (net.Listener) for TLS connections.
+/*封装了net.Lister,多加了个config*/
 type listener struct {
 	net.Listener
 	config *Config

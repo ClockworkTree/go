@@ -116,14 +116,22 @@ cookie 和 重定向功能在client 文件里，这里没有
 要查看//忽略的1xx响应，请使用httptrace跟踪包的//ClientTrace.Got1xxResponse.
 
 //传输仅在遇到网络错误时重试请求，前提是请求是幂等的，并且没有正文或有其请求.GetBody定义。
-如果HTTP请求有HTTP方法GET、HEAD、OPTIONS或TRACE，或者它们的头映射包含“幂等键”或“X-Idempotency-Key”//entry，则认为HTTP请求是幂等的。如果幂等键值是长度为零的片，则//请求将被视为幂等，但不会在//线路上发送标头。
+如果HTTP请求有HTTP方法GET、HEAD、OPTIONS或TRACE，或者它们的头映射包含"Idempotency-Key"或“X-Idempotency-Key”//entry，则认为HTTP请求是幂等的。
+如果幂等键值是长度为零的切片，则请求将被视为幂等，但不会在线路上发送标头。
 */
 type Transport struct {
-	idleMu       sync.Mutex
-	closeIdle    bool                                // user has requested to close all idle conns
-	idleConn     map[connectMethodKey][]*persistConn // most recently used at end
-	idleConnWait map[connectMethodKey]wantConnQueue  // waiting getConns
-	idleLRU      connLRU
+	idleMu sync.Mutex
+	/*用户是否设置关闭所有空闲链接*/
+	closeIdle bool // user has requested to close all idle conns
+
+	//空闲链接, 和database/sql 包一样，使用切片来保存
+	idleConn map[connectMethodKey][]*persistConn // most recently used at end
+
+	/* todo */
+	idleConnWait map[connectMethodKey]wantConnQueue // waiting getConns
+
+	/* todo,使用了LRU， 可以分析下具体实现*/
+	idleLRU connLRU
 
 	reqMu       sync.Mutex
 	reqCanceler map[cancelKey]func(error)
@@ -144,6 +152,7 @@ type Transport struct {
 	// "http" is assumed.
 	//
 	// If Proxy is nil or returns a nil *URL, no proxy is used.
+	/**/
 	Proxy func(*Request) (*url.URL, error)
 
 	// DialContext specifies the dial function for creating unencrypted TCP connections.
