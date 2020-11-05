@@ -16,6 +16,16 @@
 // See https://http2.golang.org/ for a test server running this code.
 //
 
+/*
+代码生成者golang.org/x/tools/cmd/bundle. 不要编辑。
+$bundle-o=h2_捆绑。开始-前缀=http2-tags=！nethttpomithttp2
+golangorg/x/net/http2//http2包实现了HTTP/2协议。
+////此包是低级的，只供少数人直接使用。大多数用户将通过automatic//use-by-the-net/http包间接使用它（从Go1.6及更高版本）。
+//有关在早期Go版本中使用的信息，请参阅ConfigureServer。（传输支持//需要Go 1.6或更高版本）
+///请参阅https://http2.github.io/有关HTTP/2的更多信息。
+////参见https://http2.golang.org/对于运行此代码的测试服务器。//
+*/
+
 package http
 
 import (
@@ -3854,6 +3864,10 @@ func http2ConfigureServer(s *Server, conf *http2Server) error {
 		// base context via an exported but unadvertised
 		// method on the Handler. This is for internal
 		// net/http<=>http2 use only.
+
+		/*
+			TLSNextProto接口早于上下文，因此net/http包通过处理程序上已导出但未通知的方法传递其每个连接的基上下文。这仅用于内部net/http<=>http2使用。
+		*/
 		var ctx context.Context
 		type baseContexter interface {
 			BaseContext() context.Context
@@ -3927,6 +3941,16 @@ func (o *http2ServeConnOpts) handler() Handler {
 // implemented in terms of providing a suitably-behaving net.Conn.
 //
 // The opts parameter is optional. If nil, default values are used.
+
+/*
+ServeConn在提供的连接和块上提供HTTP/2请求，直到连接不再可读。
+servecon开始讲HTTP/2，假设c没有任何//读或写。
+它编写其初始设置框架，并期望能够从客户端读取序言和设置框架。
+如果c有一个像*tls连接，则使用ConnectionState验证TLS密码套件并设置请求.TLS处理程序中的字段。
+servecon本身不支持h2c。
+任何h2c支持都必须网络连接.
+opts参数是可选的。如果为零，则使用默认值。
+*/
 func (s *http2Server) ServeConn(c net.Conn, opts *http2ServeConnOpts) {
 	baseCtx, cancel := http2serverConnBaseContext(c, opts)
 	defer cancel()
@@ -4385,6 +4409,11 @@ func (sc *http2serverConn) serve() {
 		sc.vlogf("http2: server connection from %v on %p", sc.conn.RemoteAddr(), sc.hs)
 	}
 
+	/*
+		writeFrame调度一个帧进行写入，并在未写入任何内容的情况下发送该帧。
+		这里没有pushback（serve goroutine从不阻塞）。
+		它是http.处理程序该块，等待它们的前一帧进入连接如果您不在serve goroutine中，请改用writeFrameFromHandler。
+	*/
 	sc.writeFrame(http2FrameWriteRequest{
 		write: http2writeSettings{
 			{http2SettingMaxFrameSize, sc.srv.maxReadFrameSize()},
@@ -4397,10 +4426,16 @@ func (sc *http2serverConn) serve() {
 
 	// Each connection starts with intialWindowSize inflow tokens.
 	// If a higher value is configured, we add more tokens.
+	/*
+		每个连接以initialWindowsSize流入令牌开始。如果配置了更高的值，我们将添加更多令牌。
+	*/
 	if diff := sc.srv.initialConnRecvWindowSize() - http2initialWindowSize; diff > 0 {
 		sc.sendWindowUpdate(nil, int(diff))
 	}
 
+	/*
+		readPreface从对等方读取ClientPreface问候语，或在超时时返回errPrefaceTimeout，如果问候语无效，则返回错误。
+	*/
 	if err := sc.readPreface(); err != nil {
 		sc.condlogf(err, "http2: server: error reading preface from client %v: %v", sc.conn.RemoteAddr(), err)
 		return
@@ -4528,6 +4563,9 @@ var http2errPrefaceTimeout = errors.New("timeout waiting for client preface")
 // readPreface reads the ClientPreface greeting from the peer or
 // returns errPrefaceTimeout on timeout, or an error if the greeting
 // is invalid.
+/*
+readPreface从对等方读取ClientPreface问候语，或在超时时返回errPrefaceTimeout，如果问候语无效，则返回错误。
+*/
 func (sc *http2serverConn) readPreface() error {
 	errc := make(chan error, 1)
 	go func() {
@@ -4633,6 +4671,12 @@ func (sc *http2serverConn) writeFrameFromHandler(wr http2FrameWriteRequest) erro
 // make it onto the wire
 //
 // If you're not on the serve goroutine, use writeFrameFromHandler instead.
+
+/*
+writeFrame调度一个帧进行写入，并在未写入任何内容的情况下发送该帧。
+这里没有pushback（serve goroutine从不阻塞）。
+它是http.处理程序该块，等待它们的前一帧进入连接如果您不在serve goroutine中，请改用writeFrameFromHandler。
+*/
 func (sc *http2serverConn) writeFrame(wr http2FrameWriteRequest) {
 	sc.serveG.check()
 

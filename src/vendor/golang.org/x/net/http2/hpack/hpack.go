@@ -5,6 +5,7 @@
 // Package hpack implements HPACK, a compression format for
 // efficiently representing HTTP header fields in the context of HTTP/2.
 //
+/*  hpack包实现了hpack，hpack是一种压缩格式，用于在HTTP/2的上下文中高效地表示HTTP头字段。 */
 // See http://tools.ietf.org/html/draft-ietf-httpbis-header-compression-09
 package hpack
 
@@ -76,6 +77,7 @@ func (hf HeaderField) Size() uint32 {
 
 // A Decoder is the decoding context for incremental processing of
 // header blocks.
+/* 解码器是用于递增处理报头块的解码上下文。 */
 type Decoder struct {
 	dynTab dynamicTable
 	emit   func(f HeaderField)

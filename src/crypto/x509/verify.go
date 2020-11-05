@@ -1077,6 +1077,11 @@ func (c *Certificate) VerifyHostname(h string) error {
 		// array of contexts and can't even assume DNS resolution. Instead,
 		// always allow perfect matches, and only apply wildcard and trailing
 		// dot processing to valid hostnames.
+		/*
+			理想情况下，我们只会根据rfc6125匹配有效主机名，
+			就像//浏览器（或多或少）一样，但实际上Go在更广泛的上下文中使用，甚至不能假设DNS解析。
+			相反，//始终允许完全匹配，并且只对有效主机名应用通配符和尾部//点处理。
+		*/
 		if validCandidateName && validHostnamePattern(match) {
 			if matchHostnames(match, candidateName) {
 				return nil

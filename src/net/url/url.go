@@ -356,6 +356,7 @@ func escape(s string, mode encoding) string {
 // URL's String method uses the EscapedPath method to obtain the path. See the
 // EscapedPath method for more details.
 type URL struct {
+	/*协议名 如 http，ftp*/
 	Scheme      string
 	Opaque      string    // encoded opaque data
 	User        *Userinfo // username and password information
@@ -493,6 +494,8 @@ func Parse(rawurl string) (*URL, error) {
 // only as an absolute URI or an absolute path.
 // The string rawurl is assumed not to have a #fragment suffix.
 // (Web browsers strip #fragment before sending the URL to a web server.)
+
+/*//ParseRequestURI将rawurl解析为URL结构。它假定//rawurl是在HTTP请求中接收的，因此rawurl被解释为//仅为绝对URI或绝对路径。//假定字符串rawurl没有#片段后缀。//（在将URL发送到Web服务器之前，Web浏览器将剥离片段。）*/
 func ParseRequestURI(rawurl string) (*URL, error) {
 	url, err := parse(rawurl, true)
 	if err != nil {

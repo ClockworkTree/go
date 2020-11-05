@@ -1,0 +1,121 @@
+@startuml
+namespace hpack {
+    class Decoder << (S,Aquamarine) >> {
+        - dynTab dynamicTable
+        - emit <font color=blue>func</font>(HeaderField) 
+        - emitEnabled bool
+        - maxStrLen int
+        - buf []byte
+        - saveBuf bytes.Buffer
+        - firstField bool
+
+        - maxTableIndex() int
+        - at(i uint64) (HeaderField, bool)
+        - parseHeaderFieldRepr() error
+        - parseFieldIndexed() error
+        - parseFieldLiteral(n uint8, it indexType) error
+        - callEmit(hf HeaderField) error
+        - parseDynamicTableSizeUpdate() error
+        - readString(p []byte, wantStr bool) (string, []byte, error)
+
+        + SetMaxStringLength(n int) 
+        + SetEmitFunc(emitFunc <font color=blue>func</font>(HeaderField) ) 
+        + SetEmitEnabled(v bool) 
+        + EmitEnabled() bool
+        + SetMaxDynamicTableSize(v uint32) 
+        + SetAllowedMaxDynamicTableSize(v uint32) 
+        + DecodeFull(p []byte) ([]HeaderField, error)
+        + Close() error
+        + Write(p []byte) (int, error)
+
+    }
+    class DecodingError << (S,Aquamarine) >> {
+        + Err error
+
+        + Error() string
+
+    }
+    class Encoder << (S,Aquamarine) >> {
+        - dynTab dynamicTable
+        - minSize uint32
+        - maxSizeLimit uint32
+        - tableSizeUpdate bool
+        - w io.Writer
+        - buf []byte
+
+        - searchTable(f HeaderField) (uint64, bool)
+        - shouldIndex(f HeaderField) bool
+
+        + WriteField(f HeaderField) error
+        + SetMaxDynamicTableSize(v uint32) 
+        + SetMaxDynamicTableSizeLimit(v uint32) 
+
+    }
+    class HeaderField << (S,Aquamarine) >> {
+        + Name string
+        + Sensitive bool
+
+        + IsPseudo() bool
+        + String() string
+        + Size() uint32
+
+    }
+    class InvalidIndexError << (S,Aquamarine) >> {
+        + Error() string
+
+    }
+    class dynamicTable << (S,Aquamarine) >> {
+        - table headerFieldTable
+        - size uint32
+        - maxSize uint32
+        - allowedMaxSize uint32
+
+        - setMaxSize(v uint32) 
+        - add(f HeaderField) 
+        - evict() 
+
+    }
+    class headerFieldTable << (S,Aquamarine) >> {
+        - ents []HeaderField
+        - evictCount uint64
+        - byName <font color=blue>map</font>[string]uint64
+        - byNameValue <font color=blue>map</font>[pairNameValue]uint64
+
+        - init() 
+        - len() int
+        - addEntry(f HeaderField) 
+        - evictOldest(n int) 
+        - search(f HeaderField) (uint64, bool)
+        - idToIndex(id uint64) uint64
+
+    }
+    class hpack.InvalidIndexError << (T, #FF7700) >>  {
+    }
+    class hpack.incomparable << (T, #FF7700) >>  {
+    }
+    class hpack.indexType << (T, #FF7700) >>  {
+    }
+    class indexType << (S,Aquamarine) >> {
+        - indexed() bool
+        - sensitive() bool
+
+    }
+    class node << (S,Aquamarine) >> {
+        - children *[]*node
+        - codeLen uint8
+        - sym byte
+
+        + _ incomparable
+
+    }
+    class pairNameValue << (S,Aquamarine) >> {
+        - name string
+
+    }
+}
+
+
+"__builtin__.int" #.. "hpack.InvalidIndexError"
+"__builtin__.int" #.. "hpack.indexType"
+"hpack.[]<font color=blue>func</font>() " #.. "hpack.incomparable"
+@enduml

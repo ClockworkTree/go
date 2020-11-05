@@ -1008,7 +1008,10 @@ const (
 )
 
 func readRequest(b *bufio.Reader, deleteHostHeader bool) (req *Request, err error) {
+	/*封装reader*/
 	tp := newTextprotoReader(b)
+
+	/*初始化返回值 Request*/
 	req = new(Request)
 
 	// First line: GET /index.html HTTP/1.0
@@ -1024,14 +1027,33 @@ func readRequest(b *bufio.Reader, deleteHostHeader bool) (req *Request, err erro
 	}()
 
 	var ok bool
+	/*解析 "GET /foo HTTP/1.1" 格式*/
 	req.Method, req.RequestURI, req.Proto, ok = parseRequestLine(s)
 	if !ok {
 		return nil, badStringError("malformed HTTP request", s)
 	}
+
+	/*
+	     Method         = "OPTIONS"                ; Section 9.2
+	                    | "GET"                    ; Section 9.3
+	                    | "HEAD"                   ; Section 9.4
+	                    | "POST"                   ; Section 9.5
+	                    | "PUT"                    ; Section 9.6
+	                    | "DELETE"                 ; Section 9.7
+	                    | "TRACE"                  ; Section 9.8
+	                    | "CONNECT"                ; Section 9.9
+	                    | extension-method
+	   extension-method = token
+	     token          = 1*<any CHAR except CTLs or separators>
+	*/
 	if !validMethod(req.Method) {
 		return nil, badStringError("invalid method", req.Method)
 	}
+
+	/*获取第一行 原始url*/
 	rawurl := req.RequestURI
+
+	/*check http版本*/
 	if req.ProtoMajor, req.ProtoMinor, ok = ParseHTTPVersion(req.Proto); !ok {
 		return nil, badStringError("malformed HTTP version", req.Proto)
 	}
@@ -1045,15 +1067,31 @@ func readRequest(b *bufio.Reader, deleteHostHeader bool) (req *Request, err erro
 	// that starts with a slash. It can be parsed with the regular URL parser,
 	// and the path will end up in req.URL.Path, where it needs to be in order for
 	// RPC to work.
+
+	/*
+		CONNECT请求有两种不同的使用方式，而且都没有使用完整的URL:
+		标准用法是通过HTTP代理对HTTPS进行隧道(tunnel HTTPS through an HTTP proxy)。
+		看起来像 “连接” www.google.com：443http/1.1”，参数只是URL的authority部分。
+		这些信息应该被记录下来在 header的URL.Host.
+		net/rpc包也使用CONNECT，但参数是一个以斜杠开头的路径。
+		可以使用常规的URL解析器进行解析，路径将以请求URL.Path，以使RPC正常工作。
+
+		CONNECT 方法 url 没有 http:// 前缀，需要补上
+	*/
 	justAuthority := req.Method == "CONNECT" && !strings.HasPrefix(rawurl, "/")
 	if justAuthority {
 		rawurl = "http://" + rawurl
 	}
 
+	/* ParseRequestURI将rawurl解析为URL结构。
+	它假定rawurl是在HTTP请求中接收的，因此rawurl被解释为仅为绝对URI或绝对路径。
+	假定字符串rawurl没有#片段后缀。
+	（在将URL发送到Web服务器之前，Web浏览器将剥离片段。） */
 	if req.URL, err = url.ParseRequestURI(rawurl); err != nil {
 		return nil, err
 	}
 
+	/* 去掉伪造的协议名称*/
 	if justAuthority {
 		// Strip the bogus "http://" back off.
 		req.URL.Scheme = ""
@@ -1064,6 +1102,8 @@ func readRequest(b *bufio.Reader, deleteHostHeader bool) (req *Request, err erro
 	if err != nil {
 		return nil, err
 	}
+
+	/*Header 和 mimeHeader 都是 map[string][]string */
 	req.Header = Header(mimeHeader)
 
 	// RFC 7230, section 5.3: Must treat
@@ -1073,23 +1113,33 @@ func readRequest(b *bufio.Reader, deleteHostHeader bool) (req *Request, err erro
 	//	GET http://www.google.com/index.html HTTP/1.1
 	//	Host: doesntmatter
 	// the same. In the second case, any Host line is ignored.
+	/* 协议标准，以请求行url里的host 为高优先，header里的host为第二优先*/
 	req.Host = req.URL.Host
 	if req.Host == "" {
 		req.Host = req.Header.get("Host")
 	}
+
+	/*是否删除 header里的Host*/
 	if deleteHostHeader {
 		delete(req.Header, "Host")
 	}
 
+	/*
+		如果有 //	Pragma: no-cache
+		则要设置 //	Cache-Control: no-cache
+	*/
 	fixPragmaCacheControl(req.Header)
 
+	/*获取是否回包后关闭链接,这个字段server来理解和处理，handle不需要感知*/
 	req.Close = shouldClose(req.ProtoMajor, req.ProtoMinor, req.Header, false)
 
+	/*读payload到req里*/
 	err = readTransfer(req, b)
 	if err != nil {
 		return nil, err
 	}
 
+	/* 	return r.Method == "PRI" && len(r.Header) == 0 && r.URL.Path == "*" && r.Proto == "HTTP/2.0 */
 	if req.isH2Upgrade() {
 		// Because it's neither chunked, nor declared:
 		req.ContentLength = -1
@@ -1098,6 +1148,8 @@ func readRequest(b *bufio.Reader, deleteHostHeader bool) (req *Request, err erro
 		// connection, but we need to prevent the Server from
 		// dealing with the connection further if it's not
 		// hijacked. Set Close to ensure that:
+
+		//我们希望给处理程序一个劫持连接的机会，但是如果连接没有被劫持，我们需要防止服务器进一步处理该连接。关闭以确保：
 		req.Close = true
 	}
 	return req, nil

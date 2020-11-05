@@ -1003,9 +1003,12 @@ func (c *conn) readRequest(ctx context.Context) (w *response, err error) {
 	/*如果此链接上次的 请求是 post*/
 	if c.lastMethod == "POST" {
 		// RFC 7230 section 3 tolerance for old buggy clients.
+		/*偷看4个字节*/
 		peek, _ := c.bufr.Peek(4) // ReadRequest will get err below
+		/*丢弃 \r \n 字符*/
 		c.bufr.Discard(numLeadingCRorLF(peek))
 	}
+	/*decode */
 	req, err := readRequest(c.bufr, keepHostHeader)
 	if err != nil {
 		if c.r.hitReadLimit() {
@@ -1014,6 +1017,7 @@ func (c *conn) readRequest(ctx context.Context) (w *response, err error) {
 		return nil, err
 	}
 
+	/* http1ServerSupportsRequest报告Go的HTTP/1.x服务器是否支持给定req */
 	if !http1ServerSupportsRequest(req) {
 		return nil, badRequestError("unsupported protocol version")
 	}
@@ -1022,6 +1026,7 @@ func (c *conn) readRequest(ctx context.Context) (w *response, err error) {
 	c.r.setInfiniteReadLimit()
 
 	hosts, haveHost := req.Header["Host"]
+	/*	return r.Method == "PRI" && len(r.Header) == 0 && r.URL.Path == "*" && r.Proto == "HTTP/2.0"*/
 	isH2Upgrade := req.isH2Upgrade()
 	if req.ProtoAtLeast(1, 1) && (!haveHost || len(hosts) == 0) && !isH2Upgrade && req.Method != "CONNECT" {
 		return nil, badRequestError("missing required Host header")
@@ -1057,6 +1062,7 @@ func (c *conn) readRequest(ctx context.Context) (w *response, err error) {
 		c.rwc.SetReadDeadline(wholeReqDeadline)
 	}
 
+	/*初始化响应包*/
 	w = &response{
 		conn:          c,
 		cancelCtx:     cancelCtx,
@@ -1082,6 +1088,8 @@ func (c *conn) readRequest(ctx context.Context) (w *response, err error) {
 
 // http1ServerSupportsRequest reports whether Go's HTTP/1.x server
 // supports the given request.
+
+/* http1ServerSupportsRequest报告Go的HTTP/1.x服务器是否支持给定req */
 func http1ServerSupportsRequest(req *Request) bool {
 	if req.ProtoMajor == 1 {
 		return true
@@ -1876,11 +1884,13 @@ func (c *conn) serve(ctx context.Context) {
 		/*如果握手成功，新分配tls.ConnectionState 赋值给net.conn.tlsState*/
 		c.tlsState = new(tls.ConnectionState)
 
-		/*对此结构具体分配内容*/
+		/*这里进入 HTTP2服务 默认 http2*/
 		*c.tlsState = tlsConn.ConnectionState()
 		if proto := c.tlsState.NegotiatedProtocol; validNextProto(proto) {
 			if fn := c.server.TLSNextProto[proto]; fn != nil {
 				h := initALPNRequest{ctx, tlsConn, serverHandler{c.server}}
+
+				/*!!!! 这里进入了http2的service*/
 				fn(c.server, tlsConn, h)
 			}
 			return
@@ -3331,6 +3341,10 @@ func (srv *Server) onceSetNextProtoDefaults_Serve() {
 // onceSetNextProtoDefaults configures HTTP/2, if the user hasn't
 // configured otherwise. (by setting srv.TLSNextProto non-nil)
 // It must only be called via srv.nextProtoOnce (use srv.setupHTTP2_*).
+
+/*
+onceSetNextProtoDefaults配置HTTP/2，如果用户没有另外配置。（通过设置srv.TLSNextProto公司non nil）只能通过下一次协议（使用srv.setupHTTP2_*).
+*/
 func (srv *Server) onceSetNextProtoDefaults() {
 	if omitBundledHTTP2 || strings.Contains(os.Getenv("GODEBUG"), "http2server=0") {
 		return

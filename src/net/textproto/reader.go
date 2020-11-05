@@ -17,6 +17,9 @@ import (
 
 // A Reader implements convenience methods for reading requests
 // or responses from a text protocol network connection.
+
+/* 方便的从文本协议中读出 req和rsp
+http , mail , mime 都使用了这个包来解读文本协议*/
 type Reader struct {
 	R   *bufio.Reader
 	dot *dotReader

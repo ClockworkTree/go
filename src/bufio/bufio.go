@@ -130,6 +130,15 @@ func (b *Reader) readErr() error {
 //
 // Calling Peek prevents a UnreadByte or UnreadRune call from succeeding
 // until the next read operation.
+
+/*
+偷看
+Peek返回下一个n字节而不推进读取器(不算读操作)。
+字节停止//在下一次读取调用时有效。
+如果Peek返回的字节数少于n个，则它//还返回一个错误，说明读取时间短的原因。
+如果n大于b的缓冲区大小，则错误为//ErrBufferFull。
+直到下一次读取操作前 调用Peek可防止UnreadByte或UnreadRune调用成功,因为peek不是读操作
+*/
 func (b *Reader) Peek(n int) ([]byte, error) {
 	if n < 0 {
 		return nil, ErrNegativeCount
@@ -266,6 +275,39 @@ func (b *Reader) ReadByte() (byte, error) {
 // UnreadByte returns an error if the most recent method called on the
 // Reader was not a read operation. Notably, Peek is not considered a
 // read operation.
+/*
+未读字节未读最后一个字节。
+只有最近读取的字节可以不读。
+如果对读取器调用的最新方法不是读取操作，则UnderByte返回错误。
+值得注意的是，Peek不被认为是read操作
+
+UnreadByte吐出最近一次读取操作读取的最后一个字节。（只能吐出最后一个，多次调用会出问题）
+
+例子
+func main(){
+	str_alp := "abc"
+	rd_alp := strings.NewReader(str_alp)
+	buf_rd := bufio.NewReader(rd_alp)
+	byte_len_2 := make([]byte,2)
+	buf_rd.Read(byte_len_2)
+	fmt.Println(string(byte_len_2))
+	//回滚一个字节
+	buf_rd.UnreadByte()
+	//多次回滚会报错，最多只能回滚一次
+	err := buf_rd.UnreadByte()
+	if err != nil{
+		fmt.Println(err)
+	}
+	c,_ := buf_rd.ReadByte()
+	fmt.Println(string(c))
+	/*
+	* 输出
+	ab
+	bufio: invalid use of UnreadByte
+	b
+}
+
+*/
 func (b *Reader) UnreadByte() error {
 	if b.lastByte < 0 || b.r == 0 && b.w > 0 {
 		return ErrInvalidUnreadByte
@@ -308,6 +350,10 @@ func (b *Reader) ReadRune() (r rune, size int, err error) {
 // the Reader was not a ReadRune, UnreadRune returns an error. (In this
 // regard it is stricter than UnreadByte, which will unread the last byte
 // from any read operation.)
+
+/*
+未读最后一个符文。如果对Reader调用的最新方法不是ReadRune，UnreadRune将返回错误。（在这方面，它比UnreadByte更严格，UnreadByte将从任何读取操作中撤销最后一个字节
+*/
 func (b *Reader) UnreadRune() error {
 	if b.lastRuneSize < 0 || b.r < b.lastRuneSize {
 		return ErrInvalidUnreadRune
