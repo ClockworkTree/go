@@ -29,6 +29,7 @@ const (
 	debugChan = false
 )
 
+/* channel 实现 */
 type hchan struct {
 	qcount   uint           // total data in the queue
 	dataqsiz uint           // size of the circular queue
@@ -68,6 +69,7 @@ func makechan64(t *chantype, size int64) *hchan {
 	return makechan(t, int(size))
 }
 
+/* make(channel) 的实现，映射关系由编译器编译时关联*/
 func makechan(t *chantype, size int) *hchan {
 	elem := t.elem
 
@@ -90,16 +92,19 @@ func makechan(t *chantype, size int) *hchan {
 	// TODO(dvyukov,rlh): Rethink when collector can move allocated objects.
 	var c *hchan
 	switch {
+	/*如果 是无缓冲通道*/
 	case mem == 0:
 		// Queue or element size is zero.
 		c = (*hchan)(mallocgc(hchanSize, nil, true))
 		// Race detector uses this location for synchronization.
 		c.buf = c.raceaddr()
+	/* channel类型不包含指针类型的有缓冲通道 */
 	case elem.ptrdata == 0:
 		// Elements do not contain pointers.
 		// Allocate hchan and buf in one call.
 		c = (*hchan)(mallocgc(hchanSize+mem, nil, true))
 		c.buf = add(unsafe.Pointer(c), hchanSize)
+	/* channel类型包含指针类型的有缓冲通道 */
 	default:
 		// Elements contain pointers.
 		c = new(hchan)
