@@ -3129,6 +3129,7 @@ func (srv *Server) ServeTLS(l net.Listener, certFile, keyFile string) error {
 		return err
 	}
 
+	/*  []string {"h2","http/1.1}*/
 	config := cloneTLSConfig(srv.TLSConfig)
 	if !strSliceContains(config.NextProtos, "http/1.1") {
 		config.NextProtos = append(config.NextProtos, "http/1.1")
@@ -3137,7 +3138,9 @@ func (srv *Server) ServeTLS(l net.Listener, certFile, keyFile string) error {
 	configHasCert := len(config.Certificates) > 0 || config.GetCertificate != nil
 	if !configHasCert || certFile != "" || keyFile != "" {
 		var err error
+		/*初始化证书*/
 		config.Certificates = make([]tls.Certificate, 1)
+		/* slice 第一个位置加载证书和私钥*/
 		config.Certificates[0], err = tls.LoadX509KeyPair(certFile, keyFile)
 		if err != nil {
 			return err
