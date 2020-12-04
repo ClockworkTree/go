@@ -4151,11 +4151,13 @@ func (s *http2Server) ServeConn(c net.Conn, opts *http2ServeConnOpts) {
 			// since it was causing problems when connecting to bare IP
 			// addresses during development.
 			//
+			/* 客户端必须使用SNI，但我们不再强制执行它，因为它在开发过程中连接到裸IP地址时会导致问题。 */
 			// TODO: optionally enforce? Or enforce at the time we receive
 			// a new request, and verify the ServerName matches the :authority?
 			// But that precludes proxy situations, perhaps.
 			//
 			// So for now, do nothing here again.
+			/* 一个新请求，并验证服务器名是否与：authority匹配？但这可能排除了代理情况。所以现在，不要在这里再做任何事情。 */
 		}
 
 		if !s.PermitProhibitedCipherSuites && http2isBadCipher(sc.tlsState.CipherSuite) {
@@ -4169,14 +4171,19 @@ func (s *http2Server) ServeConn(c net.Conn, opts *http2ServeConnOpts) {
 			// excuses here. If we really must, we could allow an
 			// "AllowInsecureWeakCiphers" option on the server later.
 			// Let's see how it plays out first.
+
+			/* //“如果协商了一个禁止的密码套件，///端点可能会选择生成一个连接错误//（第5.4.1节），///安全性不足。”///我们选择了这一点。在我看来，这个规范很薄弱。它还说，双方必须支持至少//TLS_ECDHE_RSA_AES_128_GCM_SHA256，因此这里没有//借口。如果我们真的必须这样做，我们可以稍后在服务器上允许使用//“allowinsecureweakpiciphers”选项。//我们先看看结果如何。 */
 			sc.rejectConn(http2ErrCodeInadequateSecurity, fmt.Sprintf("Prohibited TLS 1.2 Cipher Suite: %x", sc.tlsState.CipherSuite))
 			return
 		}
 	}
 
+	/* 测试用的hook函数*/
 	if hook := http2testHookGetServerConn; hook != nil {
 		hook(sc)
 	}
+
+	/* 服务入口*/
 	sc.serve()
 }
 
@@ -4219,6 +4226,7 @@ type http2serverConn struct {
 	writeSched       http2WriteScheduler
 
 	// Everything following is owned by the serve loop; use serveG.check():
+	/* //下面的所有内容都属于服务循环；使用serveG.check(): 检查维修*/
 	serveG                      http2goroutineLock // used to verify funcs are on serve()
 	pushEnabled                 bool
 	sawFirstSettings            bool // got the initial SETTINGS frame after the preface
@@ -4325,6 +4333,11 @@ func (sc *http2serverConn) state(streamID uint32) (http2streamState, *http2strea
 	// a client sends a HEADERS frame on stream 7 without ever sending a
 	// frame on stream 5, then stream 5 transitions to the "closed"
 	// state when the first frame for stream 7 is sent or received."
+
+	/*
+		“第一次使用新的流标识符时，会隐式地关闭所有处于“空闲”状态的流，这些流可能是由该对等方用较低值的流标识符启动的。
+		例如，如果一个客户端在流7上发送了一个头帧，而没有在流5上发送一个帧，那么当流7的第一个帧被发送或接收时，流5将转换到“closed”状态
+	*/
 	if streamID%2 == 1 {
 		if streamID <= sc.maxClientStreamID {
 			return http2stateClosed, nil
@@ -4449,21 +4462,30 @@ type http2readFrameResult struct {
 // It takes care to only read one frame at a time, blocking until the
 // consumer is done with the frame.
 // It's run on its own goroutine.
+
+/*
+readFrames是读取传入帧的循环。它注意一次只读取一个帧，直到消费者处理完帧为止。它在自己的轨道上运行。
+*/
 func (sc *http2serverConn) readFrames() {
 	gate := make(http2gate)
 	gateDone := gate.Done
 	for {
+		/* ReadFrame读取单个帧。返回的帧仅在下一次调用ReadFrame之前有效。如果帧大于之前使用SetMaxReadFrameSize设置的帧，则返回的错误为ErrFrameTooLarge。其他错误的类型可能是ConnectionError、StreamError或来自底层读取器的任何其他错误。 */
 		f, err := sc.framer.ReadFrame()
 		select {
+		/*将内容 写入读帧*/
 		case sc.readFrameCh <- http2readFrameResult{f, err, gateDone}:
+		/* 当serverConn.serve结束时关闭 */
 		case <-sc.doneServing:
 			return
 		}
 		select {
 		case <-gate:
+			/* 当serverConn.serve结束时关闭 */
 		case <-sc.doneServing:
 			return
 		}
+		/* terminalReadFrameError报告err是否是来自ReadFrame的不可恢复的错误，并且不应读取其他帧。 */
 		if http2terminalReadFrameError(err) {
 			return
 		}
@@ -4562,6 +4584,11 @@ func (sc *http2serverConn) serve() {
 	// "StateNew" state. We can't go directly to idle, though.
 	// Active means we read some data and anticipate a request. We'll
 	// do another Active when we get a HEADERS frame.
+
+	/*
+		既然我们已经有了序言，就让我们脱离“statew”状态。不过，我们不能直接闲着。
+		活动意味着我们读取一些数据并预期一个请求。当我们得到一个标题帧时，我们将执行另一个活动。
+	*/
 	sc.setConnState(StateActive)
 	sc.setConnState(StateIdle)
 
@@ -4570,8 +4597,10 @@ func (sc *http2serverConn) serve() {
 		defer sc.idleTimer.Stop()
 	}
 
+	/* 异步读取 数据帧 当连接关闭时回收这个 协程*/
 	go sc.readFrames() // closed by defer sc.conn.Close above
 
+	/* 设置http2firstSettingsTimeout 回调 */
 	settingsTimer := time.AfterFunc(http2firstSettingsTimeout, sc.onSettingsTimer)
 	defer settingsTimer.Stop()
 
@@ -4579,14 +4608,17 @@ func (sc *http2serverConn) serve() {
 	for {
 		loopNum++
 		select {
+		/*   from handlers -> serve  */
 		case wr := <-sc.wantWriteFrameCh:
 			if se, ok := wr.write.(http2StreamError); ok {
 				sc.resetStream(se)
 				break
 			}
 			sc.writeFrame(wr)
+		/* from writeFrameAsync -> serve, tickles more frame writes */
 		case res := <-sc.wroteFrameCh:
 			sc.wroteFrame(res)
+		/* 读数据帧 // written by serverConn.readFrames */
 		case res := <-sc.readFrameCh:
 			if !sc.processFrameFromReader(res) {
 				return
@@ -4596,8 +4628,10 @@ func (sc *http2serverConn) serve() {
 				settingsTimer.Stop()
 				settingsTimer = nil
 			}
+		/*  from handlers -> serve */
 		case m := <-sc.bodyReadCh:
 			sc.noteBodyRead(m.st, m.n)
+		/*  // misc messages & code to send to / run on the serve loop  */
 		case msg := <-sc.serveMsgCh:
 			switch v := msg.(type) {
 			case func(int):
@@ -4628,6 +4662,9 @@ func (sc *http2serverConn) serve() {
 		// If the peer is causing us to generate a lot of control frames,
 		// but not reading them from us, assume they are trying to make us
 		// run out of memory.
+
+		/*  如果对等端导致我们生成大量控制帧，但没有从我们这里读取它们，假设它们试图使我们耗尽内存。 */
+
 		if sc.queuedControlFrames > sc.srv.maxQueuedControlFrames() {
 			sc.vlogf("http2: too many control frames in send queue, closing connection")
 			return
@@ -4636,6 +4673,10 @@ func (sc *http2serverConn) serve() {
 		// Start the shutdown timer after sending a GOAWAY. When sending GOAWAY
 		// with no error code (graceful shutdown), don't start the timer until
 		// all open streams have been completed.
+		/*
+			发送GOAWAY后启动关机计时器。
+			发送GOAWAY时没有错误代码（正常关闭），在所有打开的流都完成之前不要启动计时器。
+		*/
 		sentGoAway := sc.inGoAway && !sc.needToSendGoAway && !sc.writingFrame
 		gracefulShutdownComplete := sc.goAwayCode == http2ErrCodeNo && sc.curOpenStreams() == 0
 		if sentGoAway && sc.shutdownTimer == nil && (sc.goAwayCode != http2ErrCodeNo || gracefulShutdownComplete) {
@@ -5073,6 +5114,10 @@ func (sc *http2serverConn) resetStream(se http2StreamError) {
 // processFrameFromReader processes the serve loop's read from readFrameCh from the
 // frame-reading goroutine.
 // processFrameFromReader returns whether the connection should be kept open.
+
+/*
+processFrameFromReader处理读取框架的goroutine从readFrameCh读取的服务循环。 processFrameFromReader返回是否应保持连接打开。
+*/
 func (sc *http2serverConn) processFrameFromReader(res http2readFrameResult) bool {
 	sc.serveG.check()
 	err := res.err
@@ -9689,6 +9734,8 @@ func http2encodeHeaders(enc *hpack.Encoder, h Header, keys []string) {
 
 // WriteScheduler is the interface implemented by HTTP/2 write schedulers.
 // Methods are never called concurrently.
+
+/* http2 写调度器接口*/
 type http2WriteScheduler interface {
 	// OpenStream opens a new stream in the write scheduler.
 	// It is illegal to call this with streamID=0 or with a streamID that is
@@ -9975,6 +10022,8 @@ type http2PriorityWriteSchedulerConfig struct {
 // NewPriorityWriteScheduler constructs a WriteScheduler that schedules
 // frames by following HTTP/2 priorities as described in RFC 7540 Section 5.3.
 // If cfg is nil, default options are used.
+
+/* 构造一个http2 写调度器*/
 func http2NewPriorityWriteScheduler(cfg *http2PriorityWriteSchedulerConfig) http2WriteScheduler {
 	if cfg == nil {
 		// For justification of these defaults, see:
