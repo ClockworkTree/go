@@ -1484,11 +1484,13 @@ func http2ReadFrameHeader(r io.Reader) (http2FrameHeader, error) {
 }
 
 func http2readFrameHeader(buf []byte, r io.Reader) (http2FrameHeader, error) {
+	/* 头8个字节*/
 	_, err := io.ReadFull(r, buf[:http2frameHeaderLen])
 	if err != nil {
 		return http2FrameHeader{}, err
 	}
 	return http2FrameHeader{
+		/* 前三个 byte 表示长度*/
 		Length:   (uint32(buf[0])<<16 | uint32(buf[1])<<8 | uint32(buf[2])),
 		Type:     http2FrameType(buf[3]),
 		Flags:    http2Flags(buf[4]),
@@ -1527,6 +1529,7 @@ type http2Framer struct {
 	// TODO: let getReadBuf be configurable, and use a less memory-pinning
 	// allocator in server.go to minimize memory pinned for many idle conns.
 	// Will probably also need to make frame invalidation have a hook too.
+	/*  TODO：让getReadBuf可配置，并在server.go中使用较少的内存固定分配器，以最大程度地减少为许多空闲conns固定的内存。 可能还需要使框架失效也具有一个钩子。 */
 	getReadBuf func(size uint32) []byte
 	readBuf    []byte // cache for default getReadBuf
 
@@ -1567,6 +1570,7 @@ type http2Framer struct {
 	// non-Continuation or Continuation on a different stream is
 	// attempted to be written.
 
+	/* TODO：跟踪最后发送的帧类型和标志。 //如果我们位于标头块的中间，并且//试图写入//非连续或非连续，则返回一个错误（除非AllowIllegalWrites）。 */
 	logReads, logWrites bool
 
 	debugFramer       *http2Framer // only use for logging written writes
@@ -1723,6 +1727,8 @@ var http2ErrFrameTooLarge = errors.New("http2: frame too large")
 
 // terminalReadFrameError reports whether err is an unrecoverable
 // error from ReadFrame and no other frames should be read.
+
+/* terminalReadFrameError报告err是否是来自ReadFrame的不可恢复的错误，并且不应读取其他帧。 */
 func http2terminalReadFrameError(err error) bool {
 	if _, ok := err.(http2StreamError); ok {
 		return false
@@ -1737,6 +1743,54 @@ func http2terminalReadFrameError(err error) bool {
 // returned error is ErrFrameTooLarge. Other errors may be of type
 // ConnectionError, StreamError, or anything else from the underlying
 // reader.
+
+/* ReadFrame读取单个帧。返回的帧仅在下一次调用ReadFrame之前有效。如果帧大于之前使用SetMaxReadFrameSize设置的帧，则返回的错误为ErrFrameTooLarge。其他错误的类型可能是ConnectionError、StreamError或来自底层读取器的任何其他错误。 */
+
+/*      DATA  +---------------+
+|Pad Length? (8)|
++---------------+-----------------------------------------------+
+|                            Data (*)                         ...
++---------------------------------------------------------------+
+|                           Padding (*)                       ...
++---------------------------------------------------------------+
+*/
+/*
+header 帧    +---------------+
+|Pad Length? (8)|
++-+-------------+-----------------------------------------------+
+|E|                 Stream Dependency? (31)                     |
++-+-------------+-----------------------------------------------+
+|  Weight? (8)  |
++-+-------------+-----------------------------------------------+
+|                   Header Block Fragment (*)                 ...
++---------------------------------------------------------------+
+|                           Padding (*)                       ...
++---------------------------------------------------------------+
+*/
+
+/*
+PRIORITY 帧(类型 = 0x2)指定了 stream 流的发送方的建议优先级(第 5.3 节)。它可以在任何流的状态下发送，包括空闲或关闭的流。
+
+C
+    +-+-------------------------------------------------------------+
+    |E|                  Stream Dependency (31)                     |
+    +-+-------------+-----------------------------------------------+
+    |   Weight (8)  |
+    +-+-------------+
+*/
+
+/*
+在 HTTP 1.X 中，一个连接同一时间内只发送一个请求，如果需要中途中止，直接关闭连接即可。但是在 HTTP/2 中，多个 Stream 会共享同一个连接。如果关闭连接会影响其他的 Stream 流，RST_STREAM 帧也就出现了，它允许立刻中止一个未完成的流。
+
+RST_STREAM帧(类型 = 0x3)允许立即终止一个 stream 流。发送 RST_STREAM 以请求取消一个流或指示已发生错误的情况。
+
+C
+    +---------------------------------------------------------------+
+    |                        Error Code (32)                        |
+    +---------------------------------------------------------------+
+RST_STREAM 帧包含一个无符号的 32 位整数，用于标识错误代码(第 7 节)。错误代码表明了流被终止的原因。
+*/
+
 func (fr *http2Framer) ReadFrame() (http2Frame, error) {
 	fr.errDetail = nil
 	if fr.lastFrame != nil {
@@ -3292,6 +3346,7 @@ type http2stringWriter interface {
 }
 
 // A gate lets two goroutines coordinate their activities.
+//一个门让两个goroutine协调他们的活动。
 type http2gate chan struct{}
 
 func (g http2gate) Done() { g <- struct{}{} }
@@ -3659,10 +3714,13 @@ var (
 )
 
 // Server is an HTTP/2 server.
+/* 服务器是HTTP/2服务器。*/
 type http2Server struct {
 	// MaxHandlers limits the number of http.Handler ServeHTTP goroutines
 	// which may run at a time over all connections.
 	// Negative or zero no limit.
+
+	/* 一个连接上最多的handler go routine。负或零无限制。 */
 	// TODO: implement
 	MaxHandlers int
 
@@ -3672,21 +3730,34 @@ type http2Server struct {
 	// which may be active globally, which is MaxHandlers.
 	// If zero, MaxConcurrentStreams defaults to at least 100, per
 	// the HTTP/2 spec's recommendations.
+
+	/*  MaxConcurrentStreams可选地指定每个客户机一次可以打开的并发流数。
+	这与数量无关http.Handlergoroutines 它可能是全局活动的，即MaxHandlers。
+	如果为零，根据HTTP/2规范的建议，MaxConcurrentStreams默认值至少为100。 */
 	MaxConcurrentStreams uint32
 
 	// MaxReadFrameSize optionally specifies the largest frame
 	// this server is willing to read. A valid value is between
 	// 16k and 16M, inclusive. If zero or otherwise invalid, a
 	// default value is used.
+
+	/* MaxReadFrameSize可选地指定此服务器愿意读取的最大帧。有效值介于16k和16M之间（含16k和16M）。如果为零或无效，则使用默认值。 */
 	MaxReadFrameSize uint32
 
 	// PermitProhibitedCipherSuites, if true, permits the use of
 	// cipher suites prohibited by the HTTP/2 spec.
+
+	/* PermitProhibitedCipherSuites, if true, permits the use of
+	cipher suites prohibited by the HTTP/2 spec. */
+
+	/* PermitProhibitedCipherSuites如果为true，则允许使用HTTP/2规范禁止的密码套件/*PermitProhibitedCipherSuites，如果为true，则允许使用HTTP/2规范禁止的密码套件 */
 	PermitProhibitedCipherSuites bool
 
 	// IdleTimeout specifies how long until idle clients should be
 	// closed with a GOAWAY frame. PING frames are not considered
 	// activity for the purposes of IdleTimeout.
+
+	/* IdleTimeout指定使用goway框架关闭空闲客户端的时间。PING帧不被认为是用于IdleTimeout的活动。 */
 	IdleTimeout time.Duration
 
 	// MaxUploadBufferPerConnection is the size of the initial flow
@@ -3694,21 +3765,29 @@ type http2Server struct {
 	// allow this to be smaller than 65535 or larger than 2^32-1.
 	// If the value is outside this range, a default value will be
 	// used instead.
+
+	/* MaxUploadBufferPerConnection是每个连接的初始流控制窗口的大小。HTTP/2规范不允许它小于65535或大于2^32-1。如果该值超出此范围，则使用默认值。 */
 	MaxUploadBufferPerConnection int32
 
 	// MaxUploadBufferPerStream is the size of the initial flow control
 	// window for each stream. The HTTP/2 spec does not allow this to
 	// be larger than 2^32-1. If the value is zero or larger than the
 	// maximum, a default value will be used instead.
+
+	/* MaxUploadBufferPerStream是每个流的初始流控制窗口的大小。HTTP/2规范不允许它大于2^32-1。如果该值为零或大于最大值，则将改用默认值。 */
 	MaxUploadBufferPerStream int32
 
 	// NewWriteScheduler constructs a write scheduler for a connection.
 	// If nil, a default scheduler is chosen.
+
+	/*返回一个新的读调度器*/
 	NewWriteScheduler func() http2WriteScheduler
 
 	// Internal state. This is a pointer (rather than embedded directly)
 	// so that we don't embed a Mutex in this struct, which will make the
 	// struct non-copyable, which might break some callers.
+
+	/* 内部状态。是个指针，因此我们不能将一个mutex嵌入这个结构,这使得结构不可复制*/
 	state *http2serverInternalState
 }
 
@@ -3772,6 +3851,7 @@ func (s *http2serverInternalState) unregisterConn(sc *http2serverConn) {
 	s.mu.Unlock()
 }
 
+/* 启动优雅关机 */
 func (s *http2serverInternalState) startGracefulShutdown() {
 	if s == nil {
 		return // if the Server was used without calling ConfigureServer
@@ -3788,6 +3868,8 @@ func (s *http2serverInternalState) startGracefulShutdown() {
 // The configuration conf may be nil.
 //
 // ConfigureServer must be called before s begins serving.
+
+/*  //ConfigureServer向net/HTTP服务器添加HTTP/2支持。////配置conf可以为空。////必须在s开始服务之前调用ConfigureServer。*/
 func http2ConfigureServer(s *Server, conf *http2Server) error {
 	if s == nil {
 		panic("nil *http.Server")
@@ -3795,6 +3877,8 @@ func http2ConfigureServer(s *Server, conf *http2Server) error {
 	if conf == nil {
 		conf = new(http2Server)
 	}
+
+	/* 初始化 state map */
 	conf.state = &http2serverInternalState{activeConns: make(map[*http2serverConn]struct{})}
 	if h1, h2 := s, conf; h2.IdleTimeout == 0 {
 		if h1.IdleTimeout != 0 {
@@ -3803,8 +3887,10 @@ func http2ConfigureServer(s *Server, conf *http2Server) error {
 			h2.IdleTimeout = h1.ReadTimeout
 		}
 	}
+	/* 注册关闭handle*/
 	s.RegisterOnShutdown(conf.state.startGracefulShutdown)
 
+	/* 初始化 tls config*/
 	if s.TLSConfig == nil {
 		s.TLSConfig = new(tls.Config)
 	} else if s.TLSConfig.CipherSuites != nil {
@@ -3839,6 +3925,7 @@ func http2ConfigureServer(s *Server, conf *http2Server) error {
 	// during next-proto selection, but using TLS <1.2 with
 	// HTTP/2 is still the client's bug.
 
+	/* 优先服务端密码套件 */
 	s.TLSConfig.PreferServerCipherSuites = true
 
 	haveNPN := false
@@ -3848,13 +3935,18 @@ func http2ConfigureServer(s *Server, conf *http2Server) error {
 			break
 		}
 	}
+
+	/*  append tls 协议,slice 是 []string */
 	if !haveNPN {
 		s.TLSConfig.NextProtos = append(s.TLSConfig.NextProtos, http2NextProtoTLS)
 	}
 
+	/* 初始化map */
 	if s.TLSNextProto == nil {
 		s.TLSNextProto = map[string]func(*Server, *tls.Conn, Handler){}
 	}
+
+	/*这里是 http2的 handle 入口*/
 	protoHandler := func(hs *Server, c *tls.Conn, h Handler) {
 		if http2testHookOnConn != nil {
 			http2testHookOnConn()
@@ -3875,12 +3967,15 @@ func http2ConfigureServer(s *Server, conf *http2Server) error {
 		if bc, ok := h.(baseContexter); ok {
 			ctx = bc.BaseContext()
 		}
+		/* 这里进入服务*/
 		conf.ServeConn(c, &http2ServeConnOpts{
 			Context:    ctx,
 			Handler:    h,
 			BaseConfig: hs,
 		})
 	}
+
+	/*赋值 handle*/
 	s.TLSNextProto[http2NextProtoTLS] = protoHandler
 	return nil
 }
@@ -3955,6 +4050,7 @@ func (s *http2Server) ServeConn(c net.Conn, opts *http2ServeConnOpts) {
 	baseCtx, cancel := http2serverConnBaseContext(c, opts)
 	defer cancel()
 
+	/*初始化 conn warp*/
 	sc := &http2serverConn{
 		srv:                         s,
 		hs:                          opts.baseConfig(),
@@ -3979,6 +4075,7 @@ func (s *http2Server) ServeConn(c net.Conn, opts *http2ServeConnOpts) {
 		pushEnabled:                 true,
 	}
 
+	/* 链接加到 state activiceConn map里, 这里看state是全局共享的*/
 	s.state.registerConn(sc)
 	defer s.state.unregisterConn(sc)
 
@@ -3987,10 +4084,17 @@ func (s *http2Server) ServeConn(c net.Conn, opts *http2ServeConnOpts) {
 	// passes the connection off to us with the deadline already set.
 	// Write deadlines are set per stream in serverConn.newStream.
 	// Disarm the net.Conn write deadline here.
+
+	/*
+		在TLS握手过程中net/http包从http.Server.WriteTimeout，
+		但是将已设置读事件截止日期的链接将连接传递给我们http2服务。
+		因此对所有链接取消写事件超时设置
+	*/
 	if sc.hs.WriteTimeout != 0 {
 		sc.conn.SetWriteDeadline(time.Time{})
 	}
 
+	/* 初始化写调度器 */
 	if s.NewWriteScheduler != nil {
 		sc.writeSched = s.NewWriteScheduler()
 	} else {
@@ -4000,10 +4104,19 @@ func (s *http2Server) ServeConn(c net.Conn, opts *http2ServeConnOpts) {
 	// These start at the RFC-specified defaults. If there is a higher
 	// configured value for inflow, that will be updated when we send a
 	// WINDOW_UPDATE shortly after sending SETTINGS.
+
+	/*
+		这些从RFC指定的默认值开始。
+		如果流入有更高的配置值，则在发送设置后不久发送WINDOW_UPDATE时将更新该值
+	*/
+
+	/* conn范围（非特定于流）的出站流控制  conn-wide (not stream-specific) outbound flow control */
 	sc.flow.add(http2initialWindowSize)
+	/* 入站流控制  conn-wide (not stream-specific) outbound flow control */
 	sc.inflow.add(http2initialWindowSize)
 	sc.hpackEncoder = hpack.NewEncoder(&sc.headerWriteBuf)
 
+	/* 新的http2 帧*/
 	fr := http2NewFramer(sc.bw, c)
 	fr.ReadMetaHeaders = hpack.NewDecoder(http2initialHeaderTableSize, nil)
 	fr.MaxHeaderListSize = sc.maxHeaderListSize()
@@ -4018,11 +4131,16 @@ func (s *http2Server) ServeConn(c net.Conn, opts *http2ServeConnOpts) {
 		// 1.2 or higher with the restrictions on feature set
 		// and cipher suite described in this section. Due to
 		// implementation limitations, it might not be
-		// possible to fail TLS negotiation. An endpoint MUST
-		// immediately terminate an HTTP/2 connection that
-		// does not meet the TLS requirements described in
-		// this section with a connection error (Section
-		// 5.4.1) of type INADEQUATE_SECURITY.
+		// possible to fail tls negotiation. an endpoint must
+		// immediately terminate an http/2 connection that
+		// does not meet the tls requirements described in
+		// this section with a connection error (section
+		// 5.4.1) of type inadequate_security.
+
+		/* 9.2 TLS功能的使用TLS上的http/2实现必须使用TLS1.2或更高版本，并限制本节中描述的功能集//和密码套件。
+		由于//实现的限制，tls协商不可能失败。
+		终结点必须//立即终止不符合//本节中所述tls要求的http/2连接，并出现类型为“不充分的安全性”的连接错误（第//5.4.1节）。 */
+
 		if sc.tlsState.Version < tls.VersionTLS12 {
 			sc.rejectConn(http2ErrCodeInadequateSecurity, "TLS version too low")
 			return
