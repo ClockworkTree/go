@@ -9,6 +9,8 @@
 // Note that sometimes we use a lowercase //sys name and
 // wrap it in our own nicer implementation.
 
+/* */
+
 package syscall
 
 import "unsafe"
